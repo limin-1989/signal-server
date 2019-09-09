@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Signal-Server
 =================
 
@@ -24,3 +25,6 @@ License
 Copyright 2013-2016 Open Whisper Systems
 
 Licensed under the AGPLv3: https://www.gnu.org/licenses/agpl-3.0.html
+=======
+# signal-server
+>>>>>>> 397be98186b01b2f04d8600617106425a6755333
