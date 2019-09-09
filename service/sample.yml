@@ -1,0 +1,140 @@
+twilio: # Twilio gateway configuration
+  accountId: AC0956b7e235142286114b5a6c627fe5fA
+  accountToken: 9d36cdf69dd60c855d117c8e57854f55
+  numbers:
+    - "+12056560069"
+  messagingServicesId: 
+  localDomain: 127.0.0.1
+
+push:
+  queueSize: 20
+
+#redphone:
+#  authKey: # Deprecated
+
+turn: # TURN server configuration
+  secret: test
+  uris:
+    - turn:127.0.0.1:3478
+
+cache: # Redis server configuration for cache cluster
+  url: redis://127.0.0.1:6379
+  replicaUrls:
+    - redis://127.0.0.1:6379
+
+directory:
+  redis: # Redis server configuration for directory cluster
+    url: redis://127.0.0.1:6379
+    replicaUrls:
+      - redis://127.0.0.1:6379
+  client: # Configuration for interfacing with Contact Discovery Service cluster
+    userAuthenticationTokenSharedSecret: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    userAuthenticationTokenUserIdSecret: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  sqs:
+    accessKey: AAAAAAAAAAAAAAAAAAAA
+    accessSecret: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    queueUrl: https://sqs.ap-southeast-1.amazonaws.com/111111111111/konglomerat-queue
+  server:
+    replicationUrl: http://127.0.0.1:8080
+    replicationPassword: mypassword
+    replicationCaCertificate: MIIGDzCCA/egAwIBAgIUUmP5XBG9pEmYwiUblNg99VS6msAwDQYJKoZIhvcNAQELBQAwgZYxCzAJBgNVBAYTAlNHMRIwEAYDVQQIDAlTaW5nYXBvcmUxEjAQBgNVBAcMX/XgYucvAxW+btWOVNT0C8ZOBxujxeqCE4cSeRYq/uq9iopMqc6rZDjI61o6l5f2n9l4ST32vI9VjA5BdB/YQ+e2QEruRdBH3+l0n+jWr+8yT8FE4iW0Ey6j4dT2QefFLTZidTSgjz/RaWNgQ7ucclaoew==
+#    reconciliationChunkSize:       # CDS reconciliation chunk size
+#    reconciliationChunkIntervalMs: # CDS reconciliation chunk interval, in milliseconds
+
+messageCache:
+  redis:
+    url: redis://127.0.0.1:6379
+    replicaUrls:
+      - redis://127.0.0.1:6379
+
+messageStore: # Postgresql database configuration for message store
+  driverClass: org.postgresql.Driver
+  user: postgres
+  password: 123456
+  url: jdbc:postgresql://127.0.0.1:5432/accountdb
+
+attachments: # AWS S3 configuration
+  accessKey: AKIAIHGXT3LQBZVVMH5A
+  accessSecret: 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
+  bucket: signal
+  region: eu-west-1
+
+profiles: # AWS S3 configuration
+  accessKey: AKIQBZVVMH5QAIHGXT3A
+  accessSecret: TAA2Wy1mGRiHzOCCMlB8TVu7zOiNX2OR/JmzvWSx
+  bucket: Signal
+  region: eu-west-1
+
+database: # Postgresql database configuration
+  driverClass: org.postgresql.Driver
+  user: postgres
+  password: 123456
+  url: jdbc:postgresql://127.0.0.1:5432/accountdb
+
+abuseDatabase:
+  driverClass: org.postgresql.Driver
+  user: postgres
+  password: 123456
+  url: jdbc:postgresql://127.0.0.1:5432/accountdb
+
+pushScheduler:
+  url: redis://127.0.0.1:6379
+  replicaUrls:
+    - redis://127.0.0.1:6379
+
+apn: # Apple Push Notifications configuration
+  pushCertificate: 
+    MIIF0zCCBLugAwIBAgIBATANBgkqhkiG9w0BAQsFADBiMRwwGgYDVQQDDBNBcHBs
+    ZSBJU1QgQ0EgMiAtIEcxMSAwHgYDVQQLDBdDZXJ0aWZpY2F0aW9uIEF1dGhvcml0
+    ................................................................
+    5xBrwcth3nwD8vtEZxXP/N9/wzT6SU+M4ZP0bOuU7TjRWjMEjkjlaCrXyj9LhO6d
+    h5XraaY8X1Ga1LKC8bvRGsQSCQ+GOcwNQDTXeyluFghaJVooZ327pKnfqfCaatgI
+    82f0IgKrMg==
+  pushKey: 
+    MIIEpAIBAAKCAQEAtXd9zNAVgmJpPOBbw+csH+Eld6R24CJgwpLKbK9dwJlw7GpH
+    pz2z7YuZ0Y4vzVcSSXr6RgWQEZfI413uuk7vvekwIKFg8ZzBxNtA8t3rTaEiWPbL
+    ................................................................
+    +69opYrJTZmpfdEB+WClNAG3Df43a57o9W/Nvm4i83X9YHTAi2V7dlBnTTfJliqF
+    ZXU5fOMn3EWtofyuKDTDKOfocHPt6dLvxv+wN7IXY9fCp7jOwYQbSw==
+  bundleId: com.konglomerat
+  sandbox: true
+
+
+gcm: # GCM Configuration
+  senderId: 383199917875 #90077701463
+  apiKey: AAAAWTh-tzM:APA91bH6NngHODtb9AdSn-FEiGfLtSfMD2URXkpw2WO6l-B80xvAUdaI2NzkjK3qdjLJIhcQ3P1L3SxyBx37ZgsknoWnvCO8lavXbK5bT8xDDvuosFMJqgRF9e8gs-gFOwb2vizv4z2M #AIzaSyAHNIwGE0yKG9QnDZQMcziNAF-0zliXOtH
+
+recaptcha:
+  secret: abcd
+
+accountDatabaseCrawler:
+  chunkSize: 1000
+  chunkIntervalMs: 1000000
+
+unidentifiedDelivery:
+  certificate: CiUIDBIhBbTz4h1My+tt+vw+TVscgUe/DeHS0W02tPWAWbTO2xc3EkD+go4bJnU0AcnFfbOLKoiBfCzouZtDYMOVi69rE7r4U9cXREEqOkUmU2WJBjykAxWPCcSTmVTYHDw7hkSp/puG
+  privateKey: ABOxG29xrfq4E7IrW11Eg7+HBbtba9iiS0500YoBjn4=
+  expiresDays: 100
+
+voiceVerification:
+  url: https://server.konglomerat.net
+  locales:
+    - en
+
+pushScheduler:
+  url: redis://127.0.0.1:6379/pushScheduler
+  replicaUrls:
+    - redis://127.0.0.1:6379/pushSchedulerReplica
+  circuitBreaker:
+    failureRateThreshold: 50
+    ringBufferSizeInHalfOpenState: 10
+    ringBufferSizeInClosedState: 100
+    waitDurationInOpenStateInSeconds: 10
+
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
