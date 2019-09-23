@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.codahale.metrics.annotation.Timed;
 import org.apache.commons.codec.binary.Base64;
 import org.hibernate.validator.constraints.Length;
+
 import org.hibernate.validator.valuehandling.UnwrapValidatedValue;
 import org.whispersystems.textsecuregcm.auth.OptionalAccess;
 import org.whispersystems.textsecuregcm.auth.Anonymous;
@@ -39,6 +40,7 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import io.dropwizard.auth.Auth;
+
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Path("/v1/profile")

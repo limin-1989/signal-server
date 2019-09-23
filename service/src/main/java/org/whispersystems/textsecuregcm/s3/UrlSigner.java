@@ -23,8 +23,14 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.S3ClientOptions;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import io.minio.MinioClient;
+import io.minio.errors.MinioException;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.net.URL;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 public class UrlSigner {
@@ -39,20 +45,51 @@ public class UrlSigner {
     this.bucket      = bucket;
   }
 
-  public URL getPreSignedUrl(long attachmentId, HttpMethod method, boolean unaccelerated) {
-    AmazonS3                    client  = new AmazonS3Client(credentials);
-    GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucket, String.valueOf(attachmentId), method);
-    
-    request.setExpiration(new Date(System.currentTimeMillis() + DURATION));
-    request.setContentType("application/octet-stream");
+  public String getPreSignedUrl(long attachmentId, HttpMethod method) throws InvalidKeyException, NoSuchAlgorithmException, IOException, XmlPullParserException, MinioException {
+    String request = geturl(bucket, String.valueOf(attachmentId), method);
+    return request;
+  }
 
-    if (unaccelerated) {
-      client.setS3ClientOptions(S3ClientOptions.builder().setPathStyleAccess(true).build());
-    } else {
-      client.setS3ClientOptions(S3ClientOptions.builder().setAccelerateModeEnabled(true).build());
+  public String geturl( String bucketname, String attachemtnId, HttpMethod method) throws NoSuchAlgorithmException,
+          IOException, InvalidKeyException, XmlPullParserException, MinioException {
+
+    String url = null;
+
+
+    MinioClient minioClient = new MinioClient("http://192.168.2.116:9000", "PN6D8RRWCQXWZ9ZWRN7G", "m9STTJoYNj3HXmg6NdLt3mi1Imnf89XpQeyD0SrP");
+
+    try {
+      if(method==HttpMethod.PUT){
+        url = minioClient.presignedPutObject(bucketname, attachemtnId, 60 * 60 * 24);
+      }
+      if(method==HttpMethod.GET){
+        url = minioClient.presignedGetObject(bucketname, attachemtnId);
+      }
+      System.out.println(url);
+    } catch(MinioException e) {
+      System.out.println("Error occurred: " + e);
+    } catch (java.security.InvalidKeyException e) {
+      e.printStackTrace();
     }
 
-    return client.generatePresignedUrl(request);
+    return url;
   }
+
+
+//  public URL getPreSignedUrl(long attachmentId, HttpMethod method, boolean unaccelerated) {
+//    AmazonS3                    client  = new AmazonS3Client(credentials);
+//    GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucket, String.valueOf(attachmentId), method);
+//
+//    request.setExpiration(new Date(System.currentTimeMillis() + DURATION));
+//    request.setContentType("application/octet-stream");
+//
+//    if (unaccelerated) {
+//      client.setS3ClientOptions(S3ClientOptions.builder().setPathStyleAccess(true).build());
+//    } else {
+//      client.setS3ClientOptions(S3ClientOptions.builder().setAccelerateModeEnabled(true).build());
+//    }
+//
+//    return client.generatePresignedUrl(request);
+//  }
 
 }

@@ -243,7 +243,7 @@ public class MessageController {
     }
   }
 
-  private void sendMessage(Optional<Account> source,
+  public void sendMessage(Optional<Account> source,
                            Account destinationAccount,
                            Device destinationDevice,
                            long timestamp,
@@ -280,7 +280,7 @@ public class MessageController {
     }
   }
 
-  private void validateRegistrationIds(Account account, List<IncomingMessage> messages)
+  public void validateRegistrationIds(Account account, List<IncomingMessage> messages)
       throws StaleDevicesException
   {
     List<Long> staleDevices = new LinkedList<>();
@@ -301,7 +301,7 @@ public class MessageController {
     }
   }
 
-  private void validateCompleteDeviceList(Account account,
+  public void validateCompleteDeviceList(Account account,
                                           List<IncomingMessage> messages,
                                           boolean isSyncMessage)
       throws MismatchedDevicesException

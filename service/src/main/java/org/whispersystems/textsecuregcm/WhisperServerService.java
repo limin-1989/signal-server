@@ -22,6 +22,11 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.jdbi.v3.core.Jdbi;
 import org.whispersystems.dispatch.DispatchManager;
@@ -283,6 +288,25 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
 //    environment.metrics().register(name(NetworkSentGauge.class, "bytes_sent"), new NetworkSentGauge());
 //    environment.metrics().register(name(NetworkReceivedGauge.class, "bytes_received"), new NetworkReceivedGauge());
     environment.metrics().register(name(FileDescriptorGauge.class, "fd_count"), new FileDescriptorGauge());
+
+
+    Server server = new Server(8089);
+
+    ResourceHandler resourceHandler = new ResourceHandler();
+    resourceHandler.setDirectoriesListed(true);
+    resourceHandler.setResourceBase("D:/Photos");
+    resourceHandler.setStylesheet("");
+
+    HandlerList handlers = new HandlerList();
+    handlers.setHandlers(new Handler[] { resourceHandler, new DefaultHandler() });
+    server.setHandler(handlers);
+
+    server.start();
+//    server.join();
+
+
+
+
   }
 
   public static void main(String[] args) throws Exception {

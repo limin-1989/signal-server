@@ -8,6 +8,8 @@ import org.whispersystems.textsecuregcm.redis.ReplicatedJedisPool;
 
 import io.dropwizard.lifecycle.Managed;
 import static org.whispersystems.textsecuregcm.storage.PubSubProtos.PubSubMessage;
+
+import org.whispersystems.textsecuregcm.websocket.WebsocketAddress;
 import redis.clients.jedis.Jedis;
 
 public class PubSubManager implements Managed {
@@ -64,6 +66,13 @@ public class PubSubManager implements Managed {
   private boolean publish(byte[] channel, PubSubMessage message) {
     try (Jedis jedis = jedisPool.getWriteResource()) {
       System.out.println("jedis publish "+new String(channel));
+
+
+
+
+//      jedis.publish(new WebsocketAddress("+8615871711059",1).serialize().getBytes(),message.toByteArray());
+
+
       long result = jedis.publish(channel, message.toByteArray());
       System.out.println("result is " + result);
       if (result < 0) {

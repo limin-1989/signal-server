@@ -18,6 +18,27 @@
     </properties>
 
     <dependencies>
+
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.4</version>
+            <optional>true</optional>
+        </dependency>
+
+
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>6.0.10</version>
+        </dependency>
+
+
+
+
+
+
         <dependency>
             <groupId>org.whispersystems.textsecure</groupId>
             <artifactId>redis-dispatch</artifactId>
@@ -163,6 +184,8 @@
             <artifactId>json</artifactId>
             <version>20190722</version>
         </dependency>
+
+
     </dependencies>
 
 

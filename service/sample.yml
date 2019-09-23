@@ -51,52 +51,105 @@ messageStore: # Postgresql database configuration for message store
   driverClass: org.postgresql.Driver
   user: postgres
   password: 123456
-  url: jdbc:postgresql://127.0.0.1:5432/accountdb
+  url: jdbc:postgresql://192.168.2.160:5432/accountdb
 
 attachments: # AWS S3 configuration
-  accessKey: AKIAIHGXT3LQBZVVMH5A
-  accessSecret: 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
-  bucket: signal
+  accessKey: 2FFT5KG9KWJ6330JO8DQ
+  accessSecret: 0mHV512m+AXKSdlzc8psaMLghzZ+25IHGJ2PxKJE
+  bucket: cxcv
   region: eu-west-1
 
 profiles: # AWS S3 configuration
-  accessKey: AKIQBZVVMH5QAIHGXT3A
-  accessSecret: TAA2Wy1mGRiHzOCCMlB8TVu7zOiNX2OR/JmzvWSx
-  bucket: Signal
+  accessKey: 2FFT5KG9KWJ6330JO8DQ
+  accessSecret: 0mHV512m+AXKSdlzc8psaMLghzZ+25IHGJ2PxKJE
+  bucket: cxcv
   region: eu-west-1
 
 database: # Postgresql database configuration
   driverClass: org.postgresql.Driver
   user: postgres
   password: 123456
-  url: jdbc:postgresql://127.0.0.1:5432/accountdb
+  url: jdbc:postgresql://192.168.2.160:5432/accountdb
 
 abuseDatabase:
   driverClass: org.postgresql.Driver
   user: postgres
   password: 123456
-  url: jdbc:postgresql://127.0.0.1:5432/accountdb
+  url: jdbc:postgresql://192.168.2.160:5432/accountdb
 
-pushScheduler:
-  url: redis://127.0.0.1:6379
-  replicaUrls:
-    - redis://127.0.0.1:6379
+#pushScheduler:
+#  url: redis://127.0.0.1:6379
+#  replicaUrls:
+#    - redis://127.0.0.1:6379
 
+#apn: # Apple Push Notifications configuration
+#  pushCertificate:
+#    MIIF0zCCBLugAwIBAgIBATANBgkqhkiG9w0BAQsFADBiMRwwGgYDVQQDDBNBcHBs
+#    ZSBJU1QgQ0EgMiAtIEcxMSAwHgYDVQQLDBdDZXJ0aWZpY2F0aW9uIEF1dGhvcml0
+#    ................................................................
+#    5xBrwcth3nwD8vtEZxXP/N9/wzT6SU+M4ZP0bOuU7TjRWjMEjkjlaCrXyj9LhO6d
+#    h5XraaY8X1Ga1LKC8bvRGsQSCQ+GOcwNQDTXeyluFghaJVooZ327pKnfqfCaatgI
+#    82f0IgKrMg==
+#  pushKey:
+#    MIIEpAIBAAKCAQEAtXd9zNAVgmJpPOBbw+csH+Eld6R24CJgwpLKbK9dwJlw7GpH
+#    pz2z7YuZ0Y4vzVcSSXr6RgWQEZfI413uuk7vvekwIKFg8ZzBxNtA8t3rTaEiWPbL
+#    ................................................................
+#    +69opYrJTZmpfdEB+WClNAG3Df43a57o9W/Nvm4i83X9YHTAi2V7dlBnTTfJliqF
+#    ZXU5fOMn3EWtofyuKDTDKOfocHPt6dLvxv+wN7IXY9fCp7jOwYQbSw==
+#  bundleId: com.konglomerat
+#  sandbox: true
 apn: # Apple Push Notifications configuration
-  pushCertificate: 
-    MIIF0zCCBLugAwIBAgIBATANBgkqhkiG9w0BAQsFADBiMRwwGgYDVQQDDBNBcHBs
-    ZSBJU1QgQ0EgMiAtIEcxMSAwHgYDVQQLDBdDZXJ0aWZpY2F0aW9uIEF1dGhvcml0
-    ................................................................
-    5xBrwcth3nwD8vtEZxXP/N9/wzT6SU+M4ZP0bOuU7TjRWjMEjkjlaCrXyj9LhO6d
-    h5XraaY8X1Ga1LKC8bvRGsQSCQ+GOcwNQDTXeyluFghaJVooZ327pKnfqfCaatgI
-    82f0IgKrMg==
-  pushKey: 
-    MIIEpAIBAAKCAQEAtXd9zNAVgmJpPOBbw+csH+Eld6R24CJgwpLKbK9dwJlw7GpH
-    pz2z7YuZ0Y4vzVcSSXr6RgWQEZfI413uuk7vvekwIKFg8ZzBxNtA8t3rTaEiWPbL
-    ................................................................
-    +69opYrJTZmpfdEB+WClNAG3Df43a57o9W/Nvm4i83X9YHTAi2V7dlBnTTfJliqF
-    ZXU5fOMn3EWtofyuKDTDKOfocHPt6dLvxv+wN7IXY9fCp7jOwYQbSw==
-  bundleId: com.konglomerat
+  pushCertificate: "-----BEGIN CERTIFICATE-----
+    MIIGADCCBOigAwIBAgIIMXfOpMDCQ5owDQYJKoZIhvcNAQELBQAwgZYxCzAJBgNV
+    BAYTAlVTMRMwEQYDVQQKDApBcHBsZSBJbmMuMSwwKgYDVQQLDCNBcHBsZSBXb3Js
+    ZHdpZGUgRGV2ZWxvcGVyIFJlbGF0aW9uczFEMEIGA1UEAww7QXBwbGUgV29ybGR3
+    aWRlIERldmVsb3BlciBSZWxhdGlvbnMgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkw
+    HhcNMTkwODMwMDcyNTEyWhcNMjAwOTI4MDcyNTEyWjCBhzEdMBsGCgmSJomT8ixk
+    AQEMDWNvbS5iam0uaW1hcHAxKzApBgNVBAMMIkFwcGxlIFB1c2ggU2VydmljZXM6
+    IGNvbS5iam0uaW1hcHAxEzARBgNVBAsMClc3WTQyNzRGUzgxFzAVBgNVBAoMDkJs
+    YWlyIEJlbmphbWluMQswCQYDVQQGEwJQSDCCASIwDQYJKoZIhvcNAQEBBQADggEP
+    ADCCAQoCggEBANlFsXFi0kNsobdqDEr3pfpJ64cczcOzsgOYToJerakrJOTGyWos
+    QTAq15HEn2+jK6u56cR5YDCu8m/LZMlrn8k3jJSZqfgKuCFWv/HDA/iJ0tv9l686
+    9YRDKLkqh0hJt3NsrjNeNqQ6A6owXwlNYPNzqua7p6THf1bMHD+9uJ1HtIhsDF/L
+    r2x4yLxuWb4tb9K+ovb6BccOCflOhA1B/Eq2eXtkmtHWxecWznq8lIET0/9MUEHS
+    A8/4JToOrqAWU0nNUgj2qCEN0hiSkzftX0fPbmpAj4roldNGUHRHzyZRDcvgidaC
+    lzVZOQQzWSg9hEdgmG8HYs011ljLlgbj/lMCAwEAAaOCAl0wggJZMAwGA1UdEwEB
+    /wQCMAAwHwYDVR0jBBgwFoAUiCcXCam2GGCL7Ou69kdZxVJUo7cwggEcBgNVHSAE
+    ggETMIIBDzCCAQsGCSqGSIb3Y2QFATCB/TCBwwYIKwYBBQUHAgIwgbYMgbNSZWxp
+    YW5jZSBvbiB0aGlzIGNlcnRpZmljYXRlIGJ5IGFueSBwYXJ0eSBhc3N1bWVzIGFj
+    Y2VwdGFuY2Ugb2YgdGhlIHRoZW4gYXBwbGljYWJsZSBzdGFuZGFyZCB0ZXJtcyBh
+    bmQgY29uZGl0aW9ucyBvZiB1c2UsIGNlcnRpZmljYXRlIHBvbGljeSBhbmQgY2Vy
+    dGlmaWNhdGlvbiBwcmFjdGljZSBzdGF0ZW1lbnRzLjA1BggrBgEFBQcCARYpaHR0
+    cDovL3d3dy5hcHBsZS5jb20vY2VydGlmaWNhdGVhdXRob3JpdHkwEwYDVR0lBAww
+    CgYIKwYBBQUHAwIwMAYDVR0fBCkwJzAloCOgIYYfaHR0cDovL2NybC5hcHBsZS5j
+    b20vd3dkcmNhLmNybDAdBgNVHQ4EFgQUShXc2zPFliw/UI7nPfG46gdwIuIwDgYD
+    VR0PAQH/BAQDAgeAMBAGCiqGSIb3Y2QGAwEEAgUAMBAGCiqGSIb3Y2QGAwIEAgUA
+    MG4GCiqGSIb3Y2QGAwYEYDBeDA1jb20uYmptLmltYXBwMAUMA2FwcAwSY29tLmJq
+    bS5pbWFwcC52b2lwMAYMBHZvaXAMGmNvbS5iam0uaW1hcHAuY29tcGxpY2F0aW9u
+    MA4MDGNvbXBsaWNhdGlvbjANBgkqhkiG9w0BAQsFAAOCAQEAADxsJEu/nly1KWOV
+    ZiTXGIUgdhAcSc2Xfl3lq2RXNXpHm7U5lBBh232CJW8WfjHO+4tDGfWv7Ennrhc7
+    24YyYNoZjwgTRCiX3NIIsbZOVwZlknIMFPihVR7O+5dFSRBhwezljT47gVDNI3F3
+    E4pcn0nCQo3YRNFBh1ImcN7dZ8xL3QxtfxsMXgCf5bXBVfI68fbIcZE++QckHh7F
+    twf+j02+/PTK5A8YGHz2UD+qtac65Ad9/segRhnbrnBjlbsHBfEnijFHkLnjOINV
+    IS6DehdMYT2wS0nQj37fqeDkECANVYdcocnl/vihfq40zFRuVznPif/ONIKNL5Th
+    bisJ0A==
+    -----END CERTIFICATE-----"
+  pushKey:  -----BEGIN RSA PRIVATE KEY-----
+    MIICXAIBAAKBgQDANZ4+nDd0aoWjMjZe7v0doa/kiZHw83qkFG0ozF6T6RLOhAYo
+    eMh1RjthsXnU5YuzgL5seHKECRI2Ch2CEI7aAxztwWBEbdiMshjM1AeKnzsp6CPI
+    pJKTzWDzJ47Yo34loJo5dNp6OuPi8siGpMhdeGgqBImKzSC0bIMCEekbAQIDAQAB
+    AoGAW92Em5IYYxjCdIR8PhVlfrMXmVgzG4GTfTaSEazUC0ebiH7LXq6TyJFfskqb
+    2yg3A/0lhjxvJzIatR9SiSaWz0IUdvj7AF8KDPKgOiAzIyI8/1c5FmvqEaznFlOO
+    BE1aOwnN+EgwpXFKYPQUNLp9bHVxx4HYrALFzryqB6Kfi20CQQDipY9pyQgkmZ8Z
+    18pFeT7ovlVGEnvksxbZFx7jT2LtElae9YIlX1iiHL4svGi3x/0vEYGdZ/pEgC02
+    tD0DU/k/AkEA2RpLhkQ2U+ZbwHitfV/ONvsjXnt4AjmOkS1vQrNNxMCGmjLoWLu5
+    iBtMT3ceQVQK57o+vx6CU1dYAf5NCmebvwJAJBLT27N6j1DAKP3WnO4qXCMHMYr5
+    mzIB/fWXHfjhtvgHP2+2Ejq1wb+vaTFnvXCgVKCFr8b/5207RQy09VWlQwJBAJmH
+    eOVok6rdewEv1jCVcfV7wFVupz2binCsWsQmnNaI+CdP3PPzPY89Dsgbiu/UCSo6
+    kWkCoFNjrz8poT28a20CQFIip0aHpXJzc/IjvUsA9o8OSqwRypdSQOro0jgtfSk1
+    ECYd0mWD/uaI/263NqvL3MKxhSFdILpIHhstIp2tGTI=
+    -----END RSA PRIVATE KEY-----
+  bundleId: com.bjm.imapp
   sandbox: true
 
 
@@ -138,3 +191,5 @@ server:
   adminConnectors:
     - type: http
       port: 8081
+
+
