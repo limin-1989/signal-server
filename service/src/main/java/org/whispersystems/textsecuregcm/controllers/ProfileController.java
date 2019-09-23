@@ -1,12 +1,18 @@
 package org.whispersystems.textsecuregcm.controllers;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.codahale.metrics.annotation.Timed;
+import io.minio.MinioClient;
+import io.minio.errors.InvalidEndpointException;
+import io.minio.errors.InvalidPortException;
 import org.apache.commons.codec.binary.Base64;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.valuehandling.UnwrapValidatedValue;
@@ -52,21 +58,32 @@ public class ProfileController {
 
   private final AmazonS3            s3client;
   private final String              bucket;
+  private final MinioClient minioClient;
 
   public ProfileController(RateLimiters rateLimiters,
                            AccountsManager accountsManager,
-                           ProfilesConfiguration profilesConfiguration)
-  {
+                           ProfilesConfiguration profilesConfiguration) throws InvalidPortException, InvalidEndpointException {
     AWSCredentials         credentials         = new BasicAWSCredentials(profilesConfiguration.getAccessKey(), profilesConfiguration.getAccessSecret());
     AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
 
     this.rateLimiters       = rateLimiters;
     this.accountsManager    = accountsManager;
     this.bucket             = profilesConfiguration.getBucket();
-    this.s3client           = AmazonS3Client.builder()
-                                            .withCredentials(credentialsProvider)
-                                            .withRegion(profilesConfiguration.getRegion())
-                                            .build();
+//    this.s3client           = AmazonS3Client.builder()
+//                                            .withCredentials(credentialsProvider)
+//                                            .withRegion(profilesConfiguration.getRegion())
+//                                            .build();
+
+    ClientConfiguration clientConfiguration = new ClientConfiguration();
+    clientConfiguration.setSignerOverride("AWSS3V4SignerType");
+
+    this.s3client           = AmazonS3ClientBuilder
+            .standard()
+            .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("http://192.168.2.160:9000", "us-east-1"))
+            .withPathStyleAccessEnabled(true)
+            .withClientConfiguration(clientConfiguration)
+            .withCredentials(new AWSStaticCredentialsProvider(credentials))
+            .build();
 
     this.policyGenerator  = new PostPolicyGenerator(profilesConfiguration.getRegion(),
                                                     profilesConfiguration.getBucket(),
@@ -74,6 +91,8 @@ public class ProfileController {
 
     this.policySigner     = new PolicySigner(profilesConfiguration.getAccessSecret(),
                                              profilesConfiguration.getRegion());
+
+    this.minioClient = new MinioClient(profilesConfiguration.getEndpoint(), profilesConfiguration.getAccessKey(), profilesConfiguration.getAccessSecret());
   }
 
   @Timed
@@ -127,20 +146,32 @@ public class ProfileController {
     String               signature      = policySigner.getSignature(now, policy.second());
 
     if (previousAvatar != null && previousAvatar.startsWith("profiles/")) {
-      s3client.deleteObject(bucket, previousAvatar);
+//      s3client.deleteObject(bucket, previousAvatar);
+      try {
+        minioClient.removeObject(bucket, previousAvatar);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     }
 
     account.setAvatar(objectName);
     accountsManager.update(account);
 
+    String url = "";
+    try {
+      url = minioClient.presignedPutObject("profiles", objectName, 60 * 60 * 24);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
     return new ProfileAvatarUploadAttributes(objectName, policy.first(), "private", "AWS4-HMAC-SHA256",
-                                             now.format(PostPolicyGenerator.AWS_DATE_TIME), policy.second(), signature);
+                                             now.format(PostPolicyGenerator.AWS_DATE_TIME), policy.second(), signature, url);
   }
 
   private String generateAvatarObjectName() {
     byte[] object = new byte[16];
     new SecureRandom().nextBytes(object);
 
-    return "profiles/" + Base64.encodeBase64URLSafeString(object);
+    return Base64.encodeBase64URLSafeString(object);
   }
 }

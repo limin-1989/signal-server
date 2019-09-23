@@ -20,6 +20,10 @@ public class ProfilesConfiguration {
   @JsonProperty
   private String region;
 
+  @NotEmpty
+  @JsonProperty
+  private String endpoint;
+
   public String getAccessKey() {
     return accessKey;
   }
@@ -36,4 +40,7 @@ public class ProfilesConfiguration {
     return region;
   }
 
+  public String getEndpoint() {
+    return endpoint;
+  }
 }

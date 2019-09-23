@@ -105,7 +105,9 @@ public class WebSocketResourceProvider implements WebSocketListener {
 
   @Override
   public void onWebSocketBinary(byte[] payload, int offset, int length) {
+    logger.debug("onWebSocketBinary!");
     try {
+      System.out.println("payload length is "+payload.length+", offset is "+offset+", length is "+length);
       WebSocketMessage webSocketMessage = messageFactory.parseMessage(payload, offset, length);
 
       switch (webSocketMessage.getType()) {

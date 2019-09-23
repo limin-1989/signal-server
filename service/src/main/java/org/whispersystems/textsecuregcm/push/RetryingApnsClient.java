@@ -12,12 +12,15 @@ import com.turo.pushy.apns.DeliveryPriority;
 import com.turo.pushy.apns.PushNotificationResponse;
 import com.turo.pushy.apns.metrics.dropwizard.DropwizardApnsClientMetricsListener;
 import com.turo.pushy.apns.util.SimpleApnsPushNotification;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 import org.bouncycastle.openssl.PEMReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.whispersystems.textsecuregcm.util.Constants;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.KeyPair;
@@ -46,11 +49,16 @@ public class RetryingApnsClient {
       metricRegistry.register(name(getClass(), entry.getKey()), entry.getValue());
     }
 
-    this.apnsClient = new ApnsClientBuilder().setClientCredentials(initializeCertificate(apnCertificate),
-                                                                   initializePrivateKey(apnKey), null)
-                                             .setMetricsListener(metricsListener)
-                                             .setApnsServer(sandbox ? ApnsClientBuilder.DEVELOPMENT_APNS_HOST : ApnsClientBuilder.PRODUCTION_APNS_HOST)
-                                             .build();
+//    this.apnsClient = new ApnsClientBuilder().setClientCredentials(initializeCertificate(apnCertificate),
+//                                                                   initializePrivateKey(apnKey), null)
+//                                             .setMetricsListener(metricsListener)
+//                                             .setApnsServer(sandbox ? ApnsClientBuilder.DEVELOPMENT_APNS_HOST : ApnsClientBuilder.PRODUCTION_APNS_HOST)
+//                                             .build();
+
+    EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+    this.apnsClient = new ApnsClientBuilder().setApnsServer(sandbox ? ApnsClientBuilder.DEVELOPMENT_APNS_HOST : ApnsClientBuilder.PRODUCTION_APNS_HOST)
+            .setClientCredentials(new File("F:\\Signal-Server\\service\\cert.p12"), "1")
+            .setConcurrentConnections(4).setEventLoopGroup(eventLoopGroup).build();
   }
 
   @VisibleForTesting
@@ -73,12 +81,16 @@ public class RetryingApnsClient {
 
   private static X509Certificate initializeCertificate(String pemCertificate) throws IOException {
     PEMReader reader = new PEMReader(new InputStreamReader(new ByteArrayInputStream(pemCertificate.getBytes())));
-    return (X509Certificate) reader.readObject();
+    Object object = reader.readObject();
+    System.out.println(object);
+    return (X509Certificate) object;
   }
 
   private static PrivateKey initializePrivateKey(String pemKey) throws IOException {
     PEMReader reader = new PEMReader(new InputStreamReader(new ByteArrayInputStream(pemKey.getBytes())));
-    return ((KeyPair) reader.readObject()).getPrivate();
+    Object object = reader.readObject();
+    System.out.println(object);
+    return ((KeyPair) object).getPrivate();
   }
 
   private static final class ResponseHandler implements GenericFutureListener<io.netty.util.concurrent.Future<PushNotificationResponse<SimpleApnsPushNotification>>> {

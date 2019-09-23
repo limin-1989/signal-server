@@ -23,8 +23,14 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.S3ClientOptions;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import io.minio.MinioClient;
+import io.minio.errors.MinioException;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.net.URL;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 public class UrlSigner {
@@ -42,7 +48,7 @@ public class UrlSigner {
   public URL getPreSignedUrl(long attachmentId, HttpMethod method, boolean unaccelerated) {
     AmazonS3                    client  = new AmazonS3Client(credentials);
     GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucket, String.valueOf(attachmentId), method);
-    
+
     request.setExpiration(new Date(System.currentTimeMillis() + DURATION));
     request.setContentType("application/octet-stream");
 
@@ -53,6 +59,36 @@ public class UrlSigner {
     }
 
     return client.generatePresignedUrl(request);
+  }
+
+  public String getPreSignedUrl(long attachmentId, HttpMethod method) throws InvalidKeyException, NoSuchAlgorithmException, IOException, XmlPullParserException, MinioException {
+    String request = geturl(bucket, String.valueOf(attachmentId), method);
+    return request;
+  }
+
+  public String geturl( String bucketname, String attachemtnId, HttpMethod method) throws NoSuchAlgorithmException,
+          IOException, InvalidKeyException, XmlPullParserException, MinioException {
+
+    String url = null;
+
+
+    MinioClient minioClient = new MinioClient("http://192.168.2.160:9000", "3UR9EMG74SKJ7WNBK0O2", "OL6+YfD2pUWncnjD8AMhnNRf9prIWI+pAjf0KKGC");
+
+    try {
+      if(method==HttpMethod.PUT){
+        url = minioClient.presignedPutObject(bucketname, attachemtnId, 60 * 60 * 24);
+      }
+      if(method==HttpMethod.GET){
+        url = minioClient.presignedGetObject(bucketname, attachemtnId);
+      }
+      System.out.println(url);
+    } catch(MinioException e) {
+      System.out.println("Error occurred: " + e);
+    } catch (java.security.InvalidKeyException e) {
+      e.printStackTrace();
+    }
+
+    return url;
   }
 
 }

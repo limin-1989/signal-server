@@ -104,9 +104,9 @@ public class PushSender implements Managed {
   }
 
   private void sendSynchronousMessage(Account account, Device device, Envelope message, boolean online) {
-    if      (device.getGcmId() != null)   {System.out.println("111");sendGcmMessage(account, device, message, online);}
-    else if (device.getApnId() != null)   {System.out.println("222");sendApnMessage(account, device, message, online);}
-    else if (device.getFetchesMessages()) {System.out.println("333");sendWebSocketMessage(account, device, message, online);}
+    if      (device.getGcmId() != null)   {System.out.println("sendGcmMessage");sendGcmMessage(account, device, message, online);}
+    else if (device.getApnId() != null)   {System.out.println("sendApnMessage");sendApnMessage(account, device, message, online);}
+    else if (device.getFetchesMessages()) {System.out.println("sendWebSocketMessage");sendWebSocketMessage(account, device, message, online);}
     else                                  {throw new AssertionError();}
   }
 
@@ -147,7 +147,7 @@ public class PushSender implements Managed {
       apnMessage = new ApnMessage(device.getApnId(), account.getNumber(), device.getId(), false);
     }
 
-//    apnSender.sendMessage(apnMessage);
+    apnSender.sendMessage(apnMessage);
   }
 
   private void sendWebSocketMessage(Account account, Device device, Envelope outgoingMessage, boolean online)
@@ -157,7 +157,7 @@ public class PushSender implements Managed {
 
   @Override
   public void start() throws Exception {
-//    apnSender.start();
+    apnSender.start();
     gcmSender.start();
   }
 
@@ -166,7 +166,7 @@ public class PushSender implements Managed {
     executor.shutdown();
     executor.awaitTermination(5, TimeUnit.MINUTES);
 
-//    apnSender.stop();
+    apnSender.stop();
     gcmSender.stop();
   }
 

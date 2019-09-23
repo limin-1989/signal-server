@@ -79,7 +79,7 @@ public class WebSocketResourceProviderFactory extends WebSocketServlet implement
 
   @Override
   public Object createWebSocket(ServletUpgradeRequest request, ServletUpgradeResponse response) {
-    System.out.println("WebSocketResourceProviderFactory: createWebSocket!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "+request.getRemoteAddress());
+    System.out.println("WebSocketResourceProviderFactory: createWebSocket! Ip is "+request.getRemoteAddress());
     try {
       Optional<WebSocketAuthenticator> authenticator = Optional.ofNullable(environment.getAuthenticator());
       Object                           authenticated = null;

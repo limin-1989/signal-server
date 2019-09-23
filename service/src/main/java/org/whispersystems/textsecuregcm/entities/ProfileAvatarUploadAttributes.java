@@ -25,12 +25,15 @@ public class ProfileAvatarUploadAttributes {
   @JsonProperty
   private String signature;
 
+  @JsonProperty
+  private String url;
+
   public ProfileAvatarUploadAttributes() {}
 
   public ProfileAvatarUploadAttributes(String key, String credential,
                                        String acl,  String algorithm,
                                        String date, String policy,
-                                       String signature)
+                                       String signature, String url)
   {
     this.key        = key;
     this.credential = credential;
@@ -39,6 +42,7 @@ public class ProfileAvatarUploadAttributes {
     this.date       = date;
     this.policy     = policy;
     this.signature  = signature;
+    this.url        = url;
   }
 
 }

@@ -76,7 +76,7 @@ public class AuthenticatedConnectListener implements WebSocketConnectListener {
                                                                   .setContent(ByteString.copyFrom(connectionId.getBytes()))
                                                                   .build();
 
-//      RedisOperation.unchecked(() -> apnFallbackManager.cancel(account, device));
+      RedisOperation.unchecked(() -> apnFallbackManager.cancel(account, device));
       pubSubManager.publish(address, connectMessage);
       pubSubManager.subscribe(address, connection);
 
