@@ -37,6 +37,10 @@ public class AttachmentsConfiguration {
   @JsonProperty
   private String region;
 
+  @NotEmpty
+  @JsonProperty
+  private String endpoint;
+
   public String getAccessKey() {
     return accessKey;
   }
@@ -51,5 +55,9 @@ public class AttachmentsConfiguration {
 
   public String getRegion() {
     return region;
+  }
+
+  public String getEndpoint() {
+    return endpoint;
   }
 }

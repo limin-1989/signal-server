@@ -76,15 +76,15 @@ public class WebsocketSender {
                                                   .build();
 
     if (pubSubManager.publish(address, pubSubMessage)) {
-      if      (channel == Type.APN) {System.out.println("aaa");apnOnlineMeter.mark();}
-      else if (channel == Type.GCM) {System.out.println("bbb");gcmOnlineMeter.mark();}
-      else                          {System.out.println("ccc");websocketOnlineMeter.mark();}
+      if      (channel == Type.APN) {System.out.println("apnOnline");apnOnlineMeter.mark();}
+      else if (channel == Type.GCM) {System.out.println("gcmOnline");gcmOnlineMeter.mark();}
+      else                          {System.out.println("websocketOnline");websocketOnlineMeter.mark();}
 
       return new DeliveryStatus(true);
     } else {
-      if      (channel == Type.APN) {System.out.println("ddd");apnOfflineMeter.mark();}
-      else if (channel == Type.GCM) {System.out.println("eee");gcmOfflineMeter.mark();}
-      else                          {System.out.println("fff");websocketOfflineMeter.mark();}
+      if      (channel == Type.APN) {System.out.println("apnOffline");apnOfflineMeter.mark();}
+      else if (channel == Type.GCM) {System.out.println("gcmOffline");gcmOfflineMeter.mark();}
+      else                          {System.out.println("websocketOffline");websocketOfflineMeter.mark();}
 
       if (!online) queueMessage(account, device, message);
       return new DeliveryStatus(false);

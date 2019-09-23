@@ -155,7 +155,7 @@ public class MessageController {
       validateCompleteDeviceList(destination.get(), messages.getMessages(), isSyncMessage);
       validateRegistrationIds(destination.get(), messages.getMessages());
 
-      System.out.println("messages size is "+messages.getMessages().size()+" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      System.out.println("messages size is "+messages.getMessages().size()+" !");
       for (IncomingMessage incomingMessage : messages.getMessages()) {
         Optional<Device> destinationDevice = destination.get().getDevice(incomingMessage.getDestinationDeviceId());
 

@@ -45,6 +45,22 @@ public class UrlSigner {
     this.bucket      = bucket;
   }
 
+  public URL getPreSignedUrl(long attachmentId, HttpMethod method, boolean unaccelerated) {
+    AmazonS3                    client  = new AmazonS3Client(credentials);
+    GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucket, String.valueOf(attachmentId), method);
+
+    request.setExpiration(new Date(System.currentTimeMillis() + DURATION));
+    request.setContentType("application/octet-stream");
+
+    if (unaccelerated) {
+      client.setS3ClientOptions(S3ClientOptions.builder().setPathStyleAccess(true).build());
+    } else {
+      client.setS3ClientOptions(S3ClientOptions.builder().setAccelerateModeEnabled(true).build());
+    }
+
+    return client.generatePresignedUrl(request);
+  }
+
   public String getPreSignedUrl(long attachmentId, HttpMethod method) throws InvalidKeyException, NoSuchAlgorithmException, IOException, XmlPullParserException, MinioException {
     String request = geturl(bucket, String.valueOf(attachmentId), method);
     return request;
@@ -56,7 +72,7 @@ public class UrlSigner {
     String url = null;
 
 
-    MinioClient minioClient = new MinioClient("http://192.168.2.116:9000", "PN6D8RRWCQXWZ9ZWRN7G", "m9STTJoYNj3HXmg6NdLt3mi1Imnf89XpQeyD0SrP");
+    MinioClient minioClient = new MinioClient("http://192.168.2.160:9000", "3UR9EMG74SKJ7WNBK0O2", "OL6+YfD2pUWncnjD8AMhnNRf9prIWI+pAjf0KKGC");
 
     try {
       if(method==HttpMethod.PUT){
@@ -74,22 +90,5 @@ public class UrlSigner {
 
     return url;
   }
-
-
-//  public URL getPreSignedUrl(long attachmentId, HttpMethod method, boolean unaccelerated) {
-//    AmazonS3                    client  = new AmazonS3Client(credentials);
-//    GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucket, String.valueOf(attachmentId), method);
-//
-//    request.setExpiration(new Date(System.currentTimeMillis() + DURATION));
-//    request.setContentType("application/octet-stream");
-//
-//    if (unaccelerated) {
-//      client.setS3ClientOptions(S3ClientOptions.builder().setPathStyleAccess(true).build());
-//    } else {
-//      client.setS3ClientOptions(S3ClientOptions.builder().setAccelerateModeEnabled(true).build());
-//    }
-//
-//    return client.generatePresignedUrl(request);
-//  }
 
 }

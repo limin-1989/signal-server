@@ -144,9 +144,8 @@ public class AccountController {
                                 @QueryParam("captcha")          Optional<String> captcha)
       throws RateLimitExceededException
   {
-    System.out.println("receive, transport is " + transport + ", number is " + number);
-    System.out.println("forwardedFor is " + forwardedFor + ", locale is " + locale);
-    System.out.println("client is " + client + ", captcha is " + captcha);
+    System.out.println("receive, transport is " + transport + ", number is " + number + ", client is " + client + ", captcha is " + captcha);
+
     if (!Util.isValidNumber(number)) {
       logger.info("Invalid number: " + number);
       throw new WebApplicationException(Response.status(400).build());
@@ -223,8 +222,6 @@ public class AccountController {
 
       Optional<StoredVerificationCode> storedVerificationCode = pendingAccounts.getCodeForNumber(number);
 
-      System.out.println(storedVerificationCode.isPresent());
-      System.out.println(storedVerificationCode.get().isValid(verificationCode));
       if (!storedVerificationCode.isPresent() || !storedVerificationCode.get().isValid(verificationCode)) {
         throw new WebApplicationException(Response.status(403).build());
       }
@@ -305,7 +302,7 @@ public class AccountController {
 //      String number              = header.getNumber();
         String number              = openid;
         String password            = header.getPassword();
-        System.out.println("/code/, number is " + number + ", password is " + password + ", userAgent is " + userAgent);
+        System.out.println("/wx/, number is " + number + ", password is " + password + ", userAgent is " + userAgent);
 
         rateLimiters.getVerifyLimiter().validate(number);
 

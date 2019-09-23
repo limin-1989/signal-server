@@ -21,6 +21,7 @@ import com.codahale.metrics.jdbi3.strategies.DefaultNameStrategy;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import io.minio.MinioClient;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -174,17 +175,17 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
     DeadLetterHandler          deadLetterHandler          = new DeadLetterHandler(messagesManager);
     DispatchManager            dispatchManager            = new DispatchManager(cacheClientFactory, Optional.of(deadLetterHandler));
     PubSubManager              pubSubManager              = new PubSubManager(cacheClient, dispatchManager);
-//    APNSender                  apnSender                  = new APNSender(accountsManager, config.getApnConfiguration());
+    APNSender                  apnSender                  = new APNSender(accountsManager, config.getApnConfiguration());
     GCMSender                  gcmSender                  = new GCMSender(accountsManager, config.getGcmConfiguration().getApiKey(), directoryQueue);
     WebsocketSender            websocketSender            = new WebsocketSender(messagesManager, pubSubManager);
     AccountAuthenticator       deviceAuthenticator        = new AccountAuthenticator(accountsManager                 );
     RateLimiters               rateLimiters               = new RateLimiters(config.getLimitsConfiguration(), cacheClient);
 
-//    ApnFallbackManager       apnFallbackManager  = new ApnFallbackManager(pushSchedulerClient, apnSender, accountsManager);
+    ApnFallbackManager       apnFallbackManager  = new ApnFallbackManager(pushSchedulerClient, apnSender, accountsManager);
     TwilioSmsSender          twilioSmsSender     = new TwilioSmsSender(config.getTwilioConfiguration());
     SmsSender                smsSender           = new SmsSender(twilioSmsSender);
-//    PushSender               pushSender          = new PushSender(apnFallbackManager, gcmSender, apnSender, websocketSender, config.getPushConfiguration().getQueueSize());
-    PushSender               pushSender          = new PushSender(gcmSender, websocketSender, config.getPushConfiguration().getQueueSize());
+    PushSender               pushSender          = new PushSender(apnFallbackManager, gcmSender, apnSender, websocketSender, config.getPushConfiguration().getQueueSize());
+//    PushSender               pushSender          = new PushSender(gcmSender, websocketSender, config.getPushConfiguration().getQueueSize());
     ReceiptSender            receiptSender       = new ReceiptSender(accountsManager, pushSender);
     TurnTokenGenerator       turnTokenGenerator  = new TurnTokenGenerator(config.getTurnConfiguration());
     RecaptchaClient          recaptchaClient     = new RecaptchaClient(config.getRecaptchaConfiguration().getSecret());
@@ -196,25 +197,26 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
 //    DirectoryReconciler                        directoryReconciler             = new DirectoryReconciler(directoryReconciliationClient, directory);
     DirectoryReconciler                        directoryReconciler             = new DirectoryReconciler(directory);
     ActiveUserCounter                          activeUserCounter               = new ActiveUserCounter(config.getMetricsFactory(), cacheClient);
-    List<AccountDatabaseCrawlerListener>       accountDatabaseCrawlerListeners = Arrays.asList(activeUserCounter, directoryReconciler);
+//    List<AccountDatabaseCrawlerListener>       accountDatabaseCrawlerListeners = Arrays.asList(activeUserCounter, directoryReconciler);
+    List<AccountDatabaseCrawlerListener>       accountDatabaseCrawlerListeners = Arrays.asList(activeUserCounter);
 
     AccountDatabaseCrawlerCache accountDatabaseCrawlerCache = new AccountDatabaseCrawlerCache(cacheClient);
     AccountDatabaseCrawler      accountDatabaseCrawler      = new AccountDatabaseCrawler(accounts, accountDatabaseCrawlerCache, accountDatabaseCrawlerListeners, config.getAccountDatabaseCrawlerConfiguration().getChunkSize(), config.getAccountDatabaseCrawlerConfiguration().getChunkIntervalMs());
 
     messagesCache.setPubSubManager(pubSubManager, pushSender);
 
-//    apnSender.setApnFallbackManager(apnFallbackManager);
-//    environment.lifecycle().manage(apnFallbackManager);
+    apnSender.setApnFallbackManager(apnFallbackManager);
+    environment.lifecycle().manage(apnFallbackManager);
     environment.lifecycle().manage(pubSubManager);
     environment.lifecycle().manage(pushSender);
     environment.lifecycle().manage(messagesCache);
-//    environment.lifecycle().manage(accountDatabaseCrawler);
+    environment.lifecycle().manage(accountDatabaseCrawler);
 
     AttachmentControllerV1 attachmentControllerV1 = new AttachmentControllerV1(rateLimiters, config.getAttachmentsConfiguration().getAccessKey(), config.getAttachmentsConfiguration().getAccessSecret(), config.getAttachmentsConfiguration().getBucket()                                                  );
-    AttachmentControllerV2 attachmentControllerV2 = new AttachmentControllerV2(rateLimiters, config.getAttachmentsConfiguration().getAccessKey(), config.getAttachmentsConfiguration().getAccessSecret(), config.getAttachmentsConfiguration().getRegion(), config.getAttachmentsConfiguration().getBucket());
+    AttachmentControllerV2 attachmentControllerV2 = new AttachmentControllerV2(rateLimiters, config.getAttachmentsConfiguration().getAccessKey(), config.getAttachmentsConfiguration().getAccessSecret(), config.getAttachmentsConfiguration().getRegion(), config.getAttachmentsConfiguration().getBucket(), config.getAttachmentsConfiguration().getEndpoint());
     KeysController         keysController         = new KeysController(rateLimiters, keys, accountsManager, directoryQueue);
-//    MessageController      messageController      = new MessageController(rateLimiters, pushSender, receiptSender, accountsManager, messagesManager, apnFallbackManager);
-    MessageController      messageController      = new MessageController(rateLimiters, pushSender, receiptSender, accountsManager, messagesManager);
+    MessageController      messageController      = new MessageController(rateLimiters, pushSender, receiptSender, accountsManager, messagesManager, apnFallbackManager);
+//    MessageController      messageController      = new MessageController(rateLimiters, pushSender, receiptSender, accountsManager, messagesManager);
     ProfileController      profileController      = new ProfileController(rateLimiters, accountsManager, config.getProfilesConfiguration());
 
     environment.jersey().register(new AuthDynamicFeature(new BasicCredentialAuthFilter.Builder<Account>()
@@ -234,13 +236,14 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
     environment.jersey().register(keysController);
     environment.jersey().register(messageController);
     environment.jersey().register(profileController);
+    environment.jersey().register(new FriendController(accountsManager));
     environment.jersey().register(new WXLoginController());
 
     ///
     WebSocketEnvironment webSocketEnvironment = new WebSocketEnvironment(environment, config.getWebSocketConfiguration(), 90000);
     webSocketEnvironment.setAuthenticator(new WebSocketAccountAuthenticator(deviceAuthenticator));
-//    webSocketEnvironment.setConnectListener(new AuthenticatedConnectListener(pushSender, receiptSender, messagesManager, pubSubManager, apnFallbackManager));
-    webSocketEnvironment.setConnectListener(new AuthenticatedConnectListener(pushSender, receiptSender, messagesManager, pubSubManager));
+    webSocketEnvironment.setConnectListener(new AuthenticatedConnectListener(pushSender, receiptSender, messagesManager, pubSubManager, apnFallbackManager));
+//    webSocketEnvironment.setConnectListener(new AuthenticatedConnectListener(pushSender, receiptSender, messagesManager, pubSubManager));
     webSocketEnvironment.jersey().register(new KeepAliveController(pubSubManager));
     webSocketEnvironment.jersey().register(messageController);
     webSocketEnvironment.jersey().register(profileController);
@@ -289,12 +292,11 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
 //    environment.metrics().register(name(NetworkReceivedGauge.class, "bytes_received"), new NetworkReceivedGauge());
     environment.metrics().register(name(FileDescriptorGauge.class, "fd_count"), new FileDescriptorGauge());
 
-
-    Server server = new Server(8089);
-
+    // jetty实现简单文件服务器
+    Server server = new Server(9090);
     ResourceHandler resourceHandler = new ResourceHandler();
     resourceHandler.setDirectoriesListed(true);
-    resourceHandler.setResourceBase("D:/Photos");
+    resourceHandler.setResourceBase("F:/Photos");
     resourceHandler.setStylesheet("");
 
     HandlerList handlers = new HandlerList();
@@ -302,11 +304,6 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
     server.setHandler(handlers);
 
     server.start();
-//    server.join();
-
-
-
-
   }
 
   public static void main(String[] args) throws Exception {

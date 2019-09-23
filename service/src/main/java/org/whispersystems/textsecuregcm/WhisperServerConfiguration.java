@@ -33,73 +33,73 @@ import io.dropwizard.client.JerseyClientConfiguration;
 /** @noinspection MismatchedQueryAndUpdateOfCollection, WeakerAccess */
 public class WhisperServerConfiguration extends Configuration {
 
-  //@NotNull
+  @NotNull
   @Valid
   @JsonProperty
   private TwilioConfiguration twilio;
 
-  //@NotNull
+  @NotNull
   @Valid
   @JsonProperty
   private PushConfiguration push;
 
-  //@NotNull
+  @NotNull
   @Valid
   @JsonProperty
   private AttachmentsConfiguration attachments;
 
-  //@NotNull
+  @NotNull
   @Valid
   @JsonProperty
   private ProfilesConfiguration profiles;
 
-  //@NotNull
+  @NotNull
   @Valid
   @JsonProperty
   private RedisConfiguration cache;
 
-  //@NotNull
+  @NotNull
   @Valid
   @JsonProperty
   private DirectoryConfiguration directory;
 
-  //@NotNull
+  @NotNull
   @Valid
   @JsonProperty
   private AccountDatabaseCrawlerConfiguration accountDatabaseCrawler;
 
-  //@NotNull
+  @NotNull
   @Valid
   @JsonProperty
   private RedisConfiguration pushScheduler;
 
-  //@NotNull
+  @NotNull
   @Valid
   @JsonProperty
   private MessageCacheConfiguration messageCache;
 
   @Valid
-  //@NotNull
+  @NotNull
   @JsonProperty
   private DatabaseConfiguration messageStore;
 
   @Valid
-  //@NotNull
+  @NotNull
   @JsonProperty
   private DatabaseConfiguration abuseDatabase;
 
   @Valid
-  //@NotNull
+  @NotNull
   @JsonProperty
   private List<TestDeviceConfiguration> testDevices = new LinkedList<>();
 
   @Valid
-  //@NotNull
+  @NotNull
   @JsonProperty
   private List<MaxDeviceConfiguration> maxDevices = new LinkedList<>();
 
   @Valid
-  //@NotNull
+  @NotNull
   @JsonProperty
   private DatabaseConfiguration database = new DatabaseConfiguration();
 
@@ -107,47 +107,47 @@ public class WhisperServerConfiguration extends Configuration {
   private DatabaseConfiguration read_database;
 
   @Valid
-  //@NotNull
+  @NotNull
   @JsonProperty
   private RateLimitsConfiguration limits = new RateLimitsConfiguration();
 
   @Valid
-  //@NotNull
+  @NotNull
   @JsonProperty
   private JerseyClientConfiguration httpClient = new JerseyClientConfiguration();
 
   @Valid
-  //@NotNull
+  @NotNull
   @JsonProperty
   private WebSocketConfiguration webSocket = new WebSocketConfiguration();
 
   @Valid
-  //@NotNull
+  @NotNull
   @JsonProperty
   private TurnConfiguration turn;
 
   @Valid
-  //@NotNull
+  @NotNull
   @JsonProperty
   private GcmConfiguration gcm;
 
   @Valid
-  //@NotNull
+  @NotNull
   @JsonProperty
   private ApnConfiguration apn;
 
   @Valid
-  //@NotNull
+  @NotNull
   @JsonProperty
   private UnidentifiedDeliveryConfiguration unidentifiedDelivery;
 
   @Valid
-  //@NotNull
+  @NotNull
   @JsonProperty
   private VoiceVerificationConfiguration voiceVerification;
 
   @Valid
-  //@NotNull
+  @NotNull
   @JsonProperty
   private RecaptchaConfiguration recaptcha;
 

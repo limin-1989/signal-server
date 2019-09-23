@@ -22,7 +22,6 @@ import io.minio.errors.MinioException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.whispersystems.textsecuregcm.entities.AttachmentDescriptorV1;
-import org.whispersystems.textsecuregcm.entities.AttachmentDescriptorV2;
 import org.whispersystems.textsecuregcm.entities.AttachmentUri;
 import org.whispersystems.textsecuregcm.limits.RateLimiters;
 import org.whispersystems.textsecuregcm.s3.UrlSigner;
@@ -83,14 +82,10 @@ public class AttachmentControllerV1 extends AttachmentControllerBase {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/{attachmentId}")
-  public AttachmentUri redirectToAttachment(
-                                            @PathParam("attachmentId") long    attachmentId)
+  public String redirectToAttachment(@Auth Account account, @PathParam("attachmentId") long attachmentId)
           throws IOException, MinioException, XmlPullParserException, NoSuchAlgorithmException, InvalidKeyException {
-
-
-    return new AttachmentUri(new URL(urlSigner.getPreSignedUrl(attachmentId, HttpMethod.GET)));
-
-
+    return urlSigner.getPreSignedUrl(attachmentId, HttpMethod.GET);
+//      return new AttachmentUri(new URL(urlSigner.getPreSignedUrl(attachmentId, HttpMethod.GET)));
 //    return new AttachmentUri(urlSigner.getPreSignedUrl(attachmentId, HttpMethod.GET, Stream.of(UNACCELERATED_REGIONS).anyMatch(region -> account.getNumber().startsWith(region))));
   }
 

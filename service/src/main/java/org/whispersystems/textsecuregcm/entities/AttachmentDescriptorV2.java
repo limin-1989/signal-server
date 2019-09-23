@@ -31,13 +31,16 @@ public class AttachmentDescriptorV2 {
   @JsonProperty
   private String attachmentIdString;
 
+  @JsonProperty
+  private String url;
+
   public AttachmentDescriptorV2() {}
 
   public AttachmentDescriptorV2(long attachmentId,
                                 String key, String credential,
                                 String acl,  String algorithm,
                                 String date, String policy,
-                                String signature)
+                                String signature, String url)
   {
     this.attachmentId       = attachmentId;
     this.attachmentIdString = String.valueOf(attachmentId);
@@ -48,6 +51,7 @@ public class AttachmentDescriptorV2 {
     this.date               = date;
     this.policy             = policy;
     this.signature          = signature;
+    this.url                = url;
   }
 
   public String getKey() {
@@ -84,5 +88,9 @@ public class AttachmentDescriptorV2 {
 
   public String getAttachmentIdString() {
     return attachmentIdString;
+  }
+
+  public String getUrl() {
+    return url;
   }
 }
