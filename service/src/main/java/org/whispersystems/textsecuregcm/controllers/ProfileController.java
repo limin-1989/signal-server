@@ -156,12 +156,12 @@ public class ProfileController {
       }
     }
 
-    account.setAvatar(objectName);
+    account.setAvatar("profiles" + objectName);
     accountsManager.update(account);
 
     String url = "";
     try {
-      url = minioClient.presignedPutObject("profiles", objectName, 60 * 60 * 24);
+      url = minioClient.presignedPutObject("", objectName, 60 * 60 * 24);
     } catch (Exception e) {
       e.printStackTrace();
     }

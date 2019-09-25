@@ -8,7 +8,6 @@ import org.whispersystems.textsecuregcm.storage.Messages;
 import org.whispersystems.textsecuregcm.storage.mappers.AccountRowMapper;
 import org.whispersystems.textsecuregcm.util.Constants;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,7 +72,7 @@ public class FriendRequests {
                         .bind("user_number", selfNumber)
                         .bind("friend_number",number )
                         .bind("reason",reason)
-                        .bind("request_time",new Date())
+                        .bind("request_time",System.currentTimeMillis())
                         .execute();
             }
         }));
@@ -117,7 +116,7 @@ public class FriendRequests {
     public Optional<Friend> friendFriendRelationshipByNumber(String selfNumber, String number){
         return database.with(jdbi -> jdbi.withHandle(handle -> {
             try(Timer.Context ignored =FindFriendTimer.time() ) {
-                return handle.createQuery("SELECT * FROM friends WHERE"+USER_NUMBER+"= :user_number AND"+FRIEND_NUMBER+"= :friend_number")
+                return handle.createQuery("SELECT * FROM friends WHERE "+USER_NUMBER+" = :user_number AND "+FRIEND_NUMBER+" = :friend_number")
                         .bind("user_number",selfNumber)
                         .bind("friend_number",number)
                         .mapTo(Friend.class)
@@ -150,12 +149,12 @@ public class FriendRequests {
      * @param number
      * @return
      */
-    public List<Friend> findFriendByUserNumber(String number){
+    public List<String> findFriendByUserNumber(String number){
         return database.with(jdbi -> jdbi.withHandle(handle -> {
             try (Timer.Context ignored = QueryAllRequestTimer.time()){
-                return handle.createQuery("SELECT * FROM friends WHERE"+USER_NUMBER + "= :user_number")
+                return handle.createQuery("SELECT friend_number FROM friends WHERE"+USER_NUMBER + "= :user_number")
                         .bind("user_number",number)
-                        .mapTo(Friend.class)
+                        .mapTo(String.class)
                         .list();
             }
         }));

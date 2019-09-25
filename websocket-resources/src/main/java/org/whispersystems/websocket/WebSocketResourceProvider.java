@@ -110,10 +110,6 @@ public class WebSocketResourceProvider implements WebSocketListener {
       System.out.println("payload length is "+payload.length+", offset is "+offset+", length is "+length);
       WebSocketMessage webSocketMessage = messageFactory.parseMessage(payload, offset, length);
 
-      for (Map.Entry<Long, CompletableFuture<WebSocketResponseMessage>> entry: requestMap.entrySet()){
-        System.err.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
-      }
-      System.err.println(session.getLocalAddress());
       switch (webSocketMessage.getType()) {
         case REQUEST_MESSAGE:
           handleRequest(webSocketMessage.getRequestMessage());

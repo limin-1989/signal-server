@@ -57,7 +57,7 @@ public class RetryingApnsClient {
 
     EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
     this.apnsClient = new ApnsClientBuilder().setApnsServer(sandbox ? ApnsClientBuilder.DEVELOPMENT_APNS_HOST : ApnsClientBuilder.PRODUCTION_APNS_HOST)
-            .setClientCredentials(new File("E:\\Signal-Server-xx\\service\\cert.p12"), "1")
+            .setClientCredentials(new File("F:\\Signal-Server\\service\\cert.p12"), "1")
             .setConcurrentConnections(4).setEventLoopGroup(eventLoopGroup).build();
   }
 

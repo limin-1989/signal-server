@@ -1,8 +1,16 @@
 package org.whispersystems.textsecuregcm.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.protobuf.ByteString;
 import org.json.JSONObject;
 import org.whispersystems.textsecuregcm.entities.AccountAttributes;
+import org.whispersystems.textsecuregcm.entities.MessageProtos;
+import org.whispersystems.textsecuregcm.push.NotPushRegisteredException;
+import org.whispersystems.textsecuregcm.push.PushSender;
+import org.whispersystems.textsecuregcm.storage.Account;
+import org.whispersystems.textsecuregcm.storage.Accounts;
+import org.whispersystems.textsecuregcm.storage.Device;
+import org.whispersystems.textsecuregcm.websocket.WebsocketAddress;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -18,6 +26,14 @@ public class WXLoginController {
 
     private String appid = "";
     private String secret = "";
+
+    private final Accounts accounts;
+    private final PushSender pushSender;
+
+    public WXLoginController(Accounts accounts, PushSender pushSender) {
+        this.accounts = accounts;
+        this.pushSender = pushSender;
+    }
 
     @GET
     @Path("/getAccessToken/{code}")
@@ -118,6 +134,37 @@ public class WXLoginController {
     public void upload(){
         File file = new File("C:\\Users\\Administrator\\Desktop\\111111111.jpeg");
         uploadFile(file, "http://192.168.2.160:9000/attachments/1111111?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=3UR9EMG74SKJ7WNBK0O2%2F20190912%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20190912T070515Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=671537ec97fa26669e5be28ecbe3df729e27e609f281a2e517581d27df493ca6");
+    }
+
+    @GET
+    @Path("/push")
+    public void push(){
+        try {
+            String number = "+8613437268396";
+            String number1 = "+8613288888888";
+            Account account = accounts.get(number1).get();
+
+            Account destinationAccount = accounts.get(number).get();
+            Device destinationDevice = destinationAccount.getDevice(1).get();
+            WebsocketAddress address = new WebsocketAddress(destinationAccount.getNumber(), destinationAccount.getDevice(1).get().getId());
+
+            MessageProtos.Envelope.Builder messageBuilder = MessageProtos.Envelope.newBuilder();
+
+            messageBuilder.setType(MessageProtos.Envelope.Type.valueOf(1))
+                    .setTimestamp(System.currentTimeMillis())
+                    .setServerTimestamp(System.currentTimeMillis());
+
+            messageBuilder.setSource(account.getNumber())
+                    .setSourceDevice(1);
+
+            messageBuilder.setLegacyMessage(ByteString.copyFrom("test".getBytes()));
+
+            messageBuilder.setContent(ByteString.copyFrom("haoyoushenqing".getBytes()));
+
+            pushSender.sendMessage(destinationAccount, destinationDevice, messageBuilder.build(), true);
+        } catch (NotPushRegisteredException e) {
+            e.printStackTrace();
+        }
     }
 
     public String doPost(String path, String params){

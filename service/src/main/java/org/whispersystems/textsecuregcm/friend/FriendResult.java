@@ -9,8 +9,6 @@ import org.whispersystems.textsecuregcm.storage.Account;
  * @date 2019/9/18 10:04
  */
 
-@Getter
-@Setter
 public class FriendResult {
 
 
@@ -28,5 +26,13 @@ public class FriendResult {
 
         return friendResult;
 
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
     }
 }

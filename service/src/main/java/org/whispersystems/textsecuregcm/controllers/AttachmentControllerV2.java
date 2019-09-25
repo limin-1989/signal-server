@@ -36,7 +36,7 @@ public class AttachmentControllerV2 extends AttachmentControllerBase {
     this.rateLimiter      = rateLimiters.getAttachmentLimiter();
     this.policyGenerator  = new PostPolicyGenerator(region, bucket, accessKey);
     this.policySigner     = new PolicySigner(accessSecret, region);
-    this.minioClient = new MinioClient(endpoint, accessKey, accessSecret);
+    this.minioClient      = new MinioClient(endpoint, accessKey, accessSecret);
   }
 
   @Timed

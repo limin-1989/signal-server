@@ -36,6 +36,7 @@ import org.whispersystems.textsecuregcm.auth.CertificateGenerator;
 import org.whispersystems.textsecuregcm.auth.DirectoryCredentialsGenerator;
 import org.whispersystems.textsecuregcm.auth.TurnTokenGenerator;
 import org.whispersystems.textsecuregcm.controllers.*;
+import org.whispersystems.textsecuregcm.friend.FriendRequests;
 import org.whispersystems.textsecuregcm.limits.RateLimiters;
 import org.whispersystems.textsecuregcm.liquibase.NameableMigrationsBundle;
 import org.whispersystems.textsecuregcm.mappers.DeviceLimitExceededExceptionMapper;
@@ -236,8 +237,8 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
     environment.jersey().register(keysController);
     environment.jersey().register(messageController);
     environment.jersey().register(profileController);
-    environment.jersey().register(new FriendController(accountsManager));
-    environment.jersey().register(new WXLoginController());
+    environment.jersey().register(new FriendController(accounts, new FriendRequests(accountDatabase), rateLimiters, accountsManager, messageController, pushSender));
+    environment.jersey().register(new WXLoginController(accounts, pushSender));
 
     ///
     WebSocketEnvironment webSocketEnvironment = new WebSocketEnvironment(environment, config.getWebSocketConfiguration(), 90000);

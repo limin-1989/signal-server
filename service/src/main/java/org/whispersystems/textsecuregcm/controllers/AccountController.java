@@ -341,8 +341,11 @@ public class AccountController {
         throw new WebApplicationException(Response.status(401).build());
       }
 
-      String response = "{\"openid\":" + openid + ",\"nickname\":" + nickname + ",\"headimgurl\":" + headimgurl + "}";
-      return Response.ok().entity(response).build();
+      JSONObject jsonObject = new JSONObject();
+      jsonObject.put("openid", openid);
+      jsonObject.put("nickname", nickname);
+      jsonObject.put("headimgurl", headimgurl);
+      return Response.ok().entity(jsonObject.toString()).build();
     }
   }
 

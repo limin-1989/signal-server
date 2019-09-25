@@ -11,7 +11,7 @@ import javax.annotation.Priority;
 public class Friend {
 
     @JsonProperty
-    private String id;
+    private int id;
 
     @JsonProperty
     private String user_number;
@@ -19,28 +19,36 @@ public class Friend {
     @JsonProperty
     private String friend_number;
 
+    public Friend() {
+    }
 
-    public String getId() {
+    public Friend(int id, String user_number, String friend_number) {
+        this.id = id;
+        this.user_number = user_number;
+        this.friend_number = friend_number;
+    }
+
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getUser_number() {
+    public String getUserNumber() {
         return user_number;
     }
 
-    public void setUser_number(String user_number) {
+    public void setUserNumber(String user_number) {
         this.user_number = user_number;
     }
 
-    public String getFriend_number() {
+    public String getFriendNumber() {
         return friend_number;
     }
 
-    public void setFriend_number(String friend_number) {
+    public void setFriendNumber(String friend_number) {
         this.friend_number = friend_number;
     }
 }
