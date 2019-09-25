@@ -8,6 +8,23 @@
         logicalFilePath="migrations.xml">
 
     <changeSet id="1" author="moxie">
+        
+        <createTable tableName="friends">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="user_number" type="varchar(255)" >
+                <constraints  nullable="false"/>
+            </column>
+
+            <column name="friend_number" type="varchar(255)" >
+                <constraints  nullable="false"/>
+            </column>
+
+        </createTable>
+        
+        
         <createTable tableName="accounts">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -186,4 +203,6 @@
             </column>
         </addColumn>
     </changeSet>
+    
+    
 </databaseChangeLog>

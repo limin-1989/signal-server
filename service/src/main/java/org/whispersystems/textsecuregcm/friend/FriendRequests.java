@@ -6,6 +6,8 @@ import com.codahale.metrics.Timer;
 import org.whispersystems.textsecuregcm.storage.FaultTolerantDatabase;
 import org.whispersystems.textsecuregcm.storage.Messages;
 import org.whispersystems.textsecuregcm.storage.mappers.AccountRowMapper;
+import org.whispersystems.textsecuregcm.storage.mappers.FriendRequestRowMapper;
+import org.whispersystems.textsecuregcm.storage.mappers.FriendRowMapper;
 import org.whispersystems.textsecuregcm.util.Constants;
 
 import java.util.Date;
@@ -20,11 +22,11 @@ import static com.codahale.metrics.MetricRegistry.name;
  */
 public class FriendRequests {
 
-    private static final String ID = "id";
-    private static final String USER_NUMBER = "user_number";
-    private static final String FRIEND_NUMBER = "friend_number";
-    private static final String REASON = "reason";
-    private static final String REQUEST_TIME = "request_time";
+    public static final String ID = "id";
+    public static final String USER_NUMBER = "user_number";
+    public static final String FRIEND_NUMBER = "friend_number";
+    public static final String REASON = "reason";
+    public static final String REQUEST_TIME = "request_time";
 
     private final MetricRegistry metricRegistry        = SharedMetricRegistries.getOrCreate(Constants.METRICS_NAME);
     private final Timer findTimer                = metricRegistry.timer(name(Messages.class, "find"          ));
@@ -39,7 +41,8 @@ public class FriendRequests {
 
     public FriendRequests(FaultTolerantDatabase database) {
         this.database = database;
-        this.database.getDatabase().registerRowMapper(new AccountRowMapper());
+        this.database.getDatabase().registerRowMapper(new FriendRowMapper());
+        this.database.getDatabase().registerRowMapper(new FriendRequestRowMapper());
     }
 
     /**
@@ -51,7 +54,7 @@ public class FriendRequests {
     public Optional<FriendRequest> find(String selfNumber, String number){
         return database.with(jdbi -> jdbi.withHandle(handle -> {
             try(Timer.Context ignored = findTimer.time()) {
-                return handle.createQuery("SELECT * FROM friend_request where"+USER_NUMBER+"= :user_number AND"+FRIEND_NUMBER+"= :friend_number")
+                return handle.createQuery("SELECT * FROM friend_request where "+USER_NUMBER+" = :user_number AND "+FRIEND_NUMBER+" = :friend_number")
                         .bind("user_number",selfNumber)
                         .bind("friend_number",number)
                         .mapTo(FriendRequest.class)
@@ -68,7 +71,7 @@ public class FriendRequests {
     public void store(String selfNumber, String number,String reason){
         database.use(jdbi -> jdbi.useHandle(handle -> {
             try (Timer.Context ignored = storeTimer.time()) {
-                handle.createUpdate("INSERT INTO friend_request("+USER_NUMBER+","+FRIEND_NUMBER+","+","+REASON+","+REQUEST_TIME+") " +
+                handle.createUpdate("INSERT INTO friend_request("+USER_NUMBER+","+FRIEND_NUMBER+","+REASON+","+REQUEST_TIME+") " +
                         "VALUES (:user_number,:friend_number,:reason,:request_time)")
                         .bind("user_number", selfNumber)
                         .bind("friend_number",number )
@@ -83,7 +86,7 @@ public class FriendRequests {
     public void deleteRequest(String selfNumber, String number){
         database.use(jdbi ->jdbi.useHandle(handle -> {
             try (Timer.Context ignored = deleteRequestTimer.time()) {
-                handle.createUpdate("DELETE FROM friend_request WHERE"+USER_NUMBER+"=:user_number AND"+FRIEND_NUMBER+"=:friend_number")
+                handle.createUpdate("DELETE FROM friend_request WHERE "+USER_NUMBER+" =:user_number AND "+FRIEND_NUMBER+" =:friend_number")
                         .bind("user_number",selfNumber)
                         .bind("friend_number",number)
                         .execute();
@@ -101,7 +104,7 @@ public class FriendRequests {
     public List<FriendRequest> findRequestByUserNumber(String number){
         return database.with(jdbi -> jdbi.withHandle(handle -> {
             try (Timer.Context ignored = QueryAllRequestTimer.time()){
-                return handle.createQuery("SELECT * FROM friend_request WHERE"+FRIEND_NUMBER + "= :friend_number")
+                return handle.createQuery("SELECT * FROM friend_request WHERE "+FRIEND_NUMBER + " = :friend_number")
                         .bind("friend_number",number)
                         .mapTo(FriendRequest.class)
                         .list();
@@ -117,7 +120,7 @@ public class FriendRequests {
     public Optional<Friend> friendFriendRelationshipByNumber(String selfNumber, String number){
         return database.with(jdbi -> jdbi.withHandle(handle -> {
             try(Timer.Context ignored =FindFriendTimer.time() ) {
-                return handle.createQuery("SELECT * FROM friends WHERE"+USER_NUMBER+"= :user_number AND"+FRIEND_NUMBER+"= :friend_number")
+                return handle.createQuery("SELECT * FROM friends WHERE "+USER_NUMBER+" = :user_number AND "+FRIEND_NUMBER+" = :friend_number")
                         .bind("user_number",selfNumber)
                         .bind("friend_number",number)
                         .mapTo(Friend.class)
@@ -146,14 +149,14 @@ public class FriendRequests {
 
 
     /**
-     * 查找好友请求
+     * 查找好友
      * @param number
      * @return
      */
     public List<Friend> findFriendByUserNumber(String number){
         return database.with(jdbi -> jdbi.withHandle(handle -> {
             try (Timer.Context ignored = QueryAllRequestTimer.time()){
-                return handle.createQuery("SELECT * FROM friends WHERE"+USER_NUMBER + "= :user_number")
+                return handle.createQuery("SELECT * FROM friends WHERE "+USER_NUMBER + "= :user_number")
                         .bind("user_number",number)
                         .mapTo(Friend.class)
                         .list();

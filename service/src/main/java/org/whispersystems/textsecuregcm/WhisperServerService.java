@@ -36,6 +36,8 @@ import org.whispersystems.textsecuregcm.auth.CertificateGenerator;
 import org.whispersystems.textsecuregcm.auth.DirectoryCredentialsGenerator;
 import org.whispersystems.textsecuregcm.auth.TurnTokenGenerator;
 import org.whispersystems.textsecuregcm.controllers.*;
+import org.whispersystems.textsecuregcm.friend.FriendController;
+import org.whispersystems.textsecuregcm.friend.FriendRequests;
 import org.whispersystems.textsecuregcm.limits.RateLimiters;
 import org.whispersystems.textsecuregcm.liquibase.NameableMigrationsBundle;
 import org.whispersystems.textsecuregcm.mappers.DeviceLimitExceededExceptionMapper;
@@ -219,6 +221,11 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
 //    MessageController      messageController      = new MessageController(rateLimiters, pushSender, receiptSender, accountsManager, messagesManager);
     ProfileController      profileController      = new ProfileController(rateLimiters, accountsManager, config.getProfilesConfiguration());
 
+
+    FriendController friendController = new FriendController(accounts, new FriendRequests(accountDatabase), rateLimiters, accountsManager, messageController);
+
+
+    environment.jersey().register(friendController);
     environment.jersey().register(new AuthDynamicFeature(new BasicCredentialAuthFilter.Builder<Account>()
                                                              .setAuthenticator(deviceAuthenticator)
                                                              .buildAuthFilter()));
@@ -236,8 +243,11 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
     environment.jersey().register(keysController);
     environment.jersey().register(messageController);
     environment.jersey().register(profileController);
-    environment.jersey().register(new FriendController(accountsManager));
+//    environment.jersey().register(new FriendController(accountsManager));
     environment.jersey().register(new WXLoginController());
+
+
+
 
     ///
     WebSocketEnvironment webSocketEnvironment = new WebSocketEnvironment(environment, config.getWebSocketConfiguration(), 90000);

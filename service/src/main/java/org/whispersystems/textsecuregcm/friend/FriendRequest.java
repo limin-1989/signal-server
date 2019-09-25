@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class FriendRequest {
 
     @JsonProperty
-    private String id;
+    private long id;
 
     @JsonProperty
     private String user_number;
@@ -23,20 +23,31 @@ public class FriendRequest {
     @JsonProperty
     private String request_time;
 
-    public FriendRequest(String id, String user_number, String friend_number, String reason, String request_time) {
+    private int status;
+
+    public FriendRequest(long id, String user_number, String friend_number, String reason, String request_time,int status) {
         this.id = id;
         this.user_number = user_number;
         this.friend_number = friend_number;
         this.reason = reason;
         this.request_time = request_time;
+        this.status = status;
     }
 
 
-    public String getId() {
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 

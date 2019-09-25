@@ -85,102 +85,102 @@ public class FriendController {
 
     }
 
-//    /**
-//     * 发送好友请求
-//     * @param account
-//     * @param number
-//     * @return
-//     */
-//    @Timed
-//    @Path("/addFriend/{number}/{reason}")
-//    @GET
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public void addFriendRequest(@Auth Account account, @PathParam("number")String number,@PathParam("reason")String reason){
-//
-//        if (!Util.isValidNumber(number)) {
-//            logger.info("Invalid number: " + number);
-//            throw new WebApplicationException(Response.status(400).build());
-//        }
-//         String selfNumber = account.getNumber();
-//         Integer status = searchFriendByNumber(selfNumber, number);
-//        if (status == SearchFriendEnum.SUCCESS.status){
-//            sendFriendrequest(selfNumber,number,reason);
-//
-//        }
-//    }
-
-
-
-
-
+    /**
+     * 发送好友请求
+     * @param account
+     * @param number
+     * @return
+     */
     @Timed
-    @Path("/{destination}")
-    @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/addFriend/{number}/{reason}")
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public SendMessageResponse sendMessage(@Auth                                     Optional<Account>   source,
-                                           @HeaderParam(OptionalAccess.UNIDENTIFIED) Optional<Anonymous> accessKey,
-                                           @PathParam("destination")                 String              destinationName,
-                                           @Valid IncomingMessageList messages)
-            throws RateLimitExceededException
-    {
-        if (!source.isPresent() && !accessKey.isPresent()) {
-            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    public void addFriendRequest(@Auth Account account, @PathParam("number")String number,@PathParam("reason")String reason){
+
+        if (Util.isEmpty(number)) {
+            logger.info("Invalid number: " + number);
+            throw new WebApplicationException(Response.status(400).build());
         }
+         String selfNumber = account.getNumber();
+         Integer status = searchFriendByNumber(selfNumber, number);
+        if (status == SearchFriendEnum.SUCCESS.status){
+            sendFriendrequest(selfNumber,number,reason);
 
-        if (source.isPresent() && !source.get().getNumber().equals(destinationName)) {
-            rateLimiters.getMessagesLimiter().validate(source.get().getNumber() + "__" + destinationName);
-        }
-
-        if (source.isPresent() && !source.get().getNumber().equals(destinationName)) {
-            identifiedMeter.mark();
-        } else {
-            unidentifiedMeter.mark();
-        }
-
-        try {
-            boolean isSyncMessage = source.isPresent() && source.get().getNumber().equals(destinationName);
-
-            Optional<Account> destination;
-
-            if (!isSyncMessage) destination = accountsManager.get(destinationName);
-            else                destination = source;
-
-            OptionalAccess.verify(source, accessKey, destination);
-            assert(destination.isPresent());
-
-            messageController.validateCompleteDeviceList(destination.get(), messages.getMessages(), isSyncMessage);
-            messageController.validateRegistrationIds(destination.get(), messages.getMessages());
-
-            System.out.println("messages size is "+messages.getMessages().size()+" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            for (IncomingMessage incomingMessage : messages.getMessages()) {
-                Optional<Device> destinationDevice = destination.get().getDevice(incomingMessage.getDestinationDeviceId());
-
-                if (destinationDevice.isPresent()) {
-                    System.out.println("message timestamp is "+messages.getTimestamp()+", online is "+messages.isOnline());
-                    messageController.sendMessage(source, destination.get(), destinationDevice.get(), messages.getTimestamp(), messages.isOnline(), incomingMessage);
-
-
-                    sendFriendrequest(source.get().getNumber(),destinationName,incomingMessage.getContent());
-                }
-            }
-
-            return new SendMessageResponse(!isSyncMessage && source.isPresent() && source.get().getActiveDeviceCount() > 1);
-        } catch (NoSuchUserException e) {
-            throw new WebApplicationException(Response.status(404).build());
-        } catch (MismatchedDevicesException e) {
-            throw new WebApplicationException(Response.status(409)
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .entity(new MismatchedDevices(e.getMissingDevices(),
-                            e.getExtraDevices()))
-                    .build());
-        } catch (StaleDevicesException e) {
-            throw new WebApplicationException(Response.status(410)
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(new StaleDevices(e.getStaleDevices()))
-                    .build());
         }
     }
+
+
+
+
+
+//    @Timed
+//    @Path("/{destination}")
+//    @PUT
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public SendMessageResponse sendMessage(@Auth                                     Optional<Account>   source,
+//                                           @HeaderParam(OptionalAccess.UNIDENTIFIED) Optional<Anonymous> accessKey,
+//                                           @PathParam("destination")                 String              destinationName,
+//                                           @Valid IncomingMessageList messages)
+//            throws RateLimitExceededException
+//    {
+//        if (!source.isPresent() && !accessKey.isPresent()) {
+//            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+//        }
+//
+//        if (source.isPresent() && !source.get().getNumber().equals(destinationName)) {
+//            rateLimiters.getMessagesLimiter().validate(source.get().getNumber() + "__" + destinationName);
+//        }
+//
+//        if (source.isPresent() && !source.get().getNumber().equals(destinationName)) {
+//            identifiedMeter.mark();
+//        } else {
+//            unidentifiedMeter.mark();
+//        }
+//
+//        try {
+//            boolean isSyncMessage = source.isPresent() && source.get().getNumber().equals(destinationName);
+//
+//            Optional<Account> destination;
+//
+//            if (!isSyncMessage) destination = accountsManager.get(destinationName);
+//            else                destination = source;
+//
+//            OptionalAccess.verify(source, accessKey, destination);
+//            assert(destination.isPresent());
+//
+//            messageController.validateCompleteDeviceList(destination.get(), messages.getMessages(), isSyncMessage);
+//            messageController.validateRegistrationIds(destination.get(), messages.getMessages());
+//
+//            System.out.println("messages size is "+messages.getMessages().size()+" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//            for (IncomingMessage incomingMessage : messages.getMessages()) {
+//                Optional<Device> destinationDevice = destination.get().getDevice(incomingMessage.getDestinationDeviceId());
+//
+//                if (destinationDevice.isPresent()) {
+//                    System.out.println("message timestamp is "+messages.getTimestamp()+", online is "+messages.isOnline());
+//                    messageController.sendMessage(source, destination.get(), destinationDevice.get(), messages.getTimestamp(), messages.isOnline(), incomingMessage);
+//
+//
+//                    sendFriendrequest(source.get().getNumber(),destinationName,incomingMessage.getContent());
+//                }
+//            }
+//
+//            return new SendMessageResponse(!isSyncMessage && source.isPresent() && source.get().getActiveDeviceCount() > 1);
+//        } catch (NoSuchUserException e) {
+//            throw new WebApplicationException(Response.status(404).build());
+//        } catch (MismatchedDevicesException e) {
+//            throw new WebApplicationException(Response.status(409)
+//                    .type(MediaType.APPLICATION_JSON_TYPE)
+//                    .entity(new MismatchedDevices(e.getMissingDevices(),
+//                            e.getExtraDevices()))
+//                    .build());
+//        } catch (StaleDevicesException e) {
+//            throw new WebApplicationException(Response.status(410)
+//                    .type(MediaType.APPLICATION_JSON)
+//                    .entity(new StaleDevices(e.getStaleDevices()))
+//                    .build());
+//        }
+//    }
 
 
     @Timed
@@ -204,6 +204,7 @@ public class FriendController {
         friendRequests.queryFriend(account.getNumber(),destinationName);
         friendRequests.queryFriend(destinationName,account.getNumber());
         friendRequests.deleteRequest( destinationName,account.getNumber());
+
     }
 
 
@@ -284,35 +285,35 @@ public class FriendController {
 
 
 
-//    /**
-//     * 在用户表中查找判断好友
-//     * @param selfNumber
-//     * @param number
-//     * @return
-//     */
-//    public Integer searchFriendByNumber(String selfNumber,String number){
-//
-//         Optional<Account> account = accounts.get(number);
-//
-//        //无此用户
-//        if (account.isEmpty()){
-//            return SearchFriendEnum.USER_NOT_EXIST.status;
-//        }
-//
-//        //此用户是自己，
-//        if (account.get().getNumber().equals(selfNumber)){
-//            return SearchFriendEnum.NOT_YOURSELF.status;
-//        }
-//
-//        //此用户已经是自己的好友
-//        Optional<Friend> relationship = friendRequests.friendFriendRelationshipByNumber(selfNumber, number);
-//        if (relationship.isPresent()){
-//            return SearchFriendEnum.ALREADY_FRIENDS.status;
-//        }
-//
-//        //正常返回
-//        return  SearchFriendEnum.SUCCESS.status;
-//    }
+    /**
+     * 在用户表中查找判断好友
+     * @param selfNumber
+     * @param number
+     * @return
+     */
+    public Integer searchFriendByNumber(String selfNumber,String number){
+
+         Optional<Account> account = accounts.get(number);
+
+        //无此用户
+        if (account.isEmpty()){
+            return SearchFriendEnum.USER_NOT_EXIST.status;
+        }
+
+        //此用户是自己，
+        if (account.get().getNumber().equals(selfNumber)){
+            return SearchFriendEnum.NOT_YOURSELF.status;
+        }
+
+        //此用户已经是自己的好友
+        Optional<Friend> relationship = friendRequests.friendFriendRelationshipByNumber(selfNumber, number);
+        if (relationship.isPresent()){
+            return SearchFriendEnum.ALREADY_FRIENDS.status;
+        }
+
+        //正常返回
+        return  SearchFriendEnum.SUCCESS.status;
+    }
 
 
     /**

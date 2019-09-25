@@ -124,7 +124,7 @@ public class WebSocketConnection implements DispatchChannel {
               boolean isReceipt = message.getType() == Envelope.Type.RECEIPT;
 
               if (isSuccessResponse(response) && !isReceipt) {
-                messageTime.update(System.currentTimeMillis() - message.getTimestamp());
+                  messageTime.update(System.currentTimeMillis() - message.getTimestamp());
               }
 
               if (isSuccessResponse(response)) {
