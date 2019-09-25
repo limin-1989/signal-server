@@ -1,13 +1,13 @@
 package org.whispersystems.textsecuregcm.friend;
 
-import lombok.Getter;
-import lombok.Setter;
+
 import org.whispersystems.textsecuregcm.storage.Account;
 
 /**
  * @author xiefan
  * @date 2019/9/18 10:04
  */
+
 
 public class FriendResult {
 
@@ -23,13 +23,20 @@ public class FriendResult {
         friendResult.setStatus(status);
         friendResult.setAccount(account);
 
-
         return friendResult;
 
     }
 
+    public Integer getStatus() {
+        return status;
+    }
+
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Account getAccount() {
+        return account;
     }
 
     public void setAccount(Account account) {

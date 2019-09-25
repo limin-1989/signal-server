@@ -1,0 +1,58 @@
+logging:
+
+#  appenders:
+#    - type: file
+#      # The file to which current statements will be logged.
+#      currentLogFilename: ./logs/example.log
+#
+#      # When the log file rotates, the archived log will be renamed to this and gzipped. The
+#      # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
+#      # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
+#      archivedLogFilenamePattern: ./logs/example-%d.log.gz
+#
+#      # The number of archived files to keep.
+#      archivedFileCount: 5
+#
+#      # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
+#      timeZone: UTC
+
+
+
+  # Permit DEBUG, INFO, WARN and ERROR messages to be logged by appenders.
+  level: DEBUG
+
+  appenders:
+    # Log warnings and errors to stderr
+    - type: console
+      threshold: WARN
+      target: stderr
+      currentLogFilename: ./logs/example.log
+
+        # When the log file rotates, the archived log will be renamed to this and gzipped. The
+        # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
+        # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
+      archivedLogFilenamePattern: ./logs/example-%d.log.gz
+
+        # The number of archived files to keep.
+      archivedFileCount: 5
+
+        # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
+      timeZone: UTC
+
+    # Log info, warnings and errors to our apps' main log.
+    # Rolled over daily and retained for 5 days.
+    - type: file
+      threshold: INFO
+      currentLogFilename: ./logs/example.log
+      archivedLogFilenamePattern: ./logs/example-%d.log.gz
+      archivedFileCount: 5
+      timeZone: UTC
+
+    # Log debug messages, info, warnings and errors to our apps' debug log.
+    # Rolled over hourly and retained for 6 hours
+    - type: file
+      threshold: DEBUG
+      currentLogFilename: ./logs/debug.log
+      archivedLogFilenamePattern: ./logs/debug-%d{yyyy-MM-dd-hh}.log.gz
+      archivedFileCount: 6
+      timeZone: UTC

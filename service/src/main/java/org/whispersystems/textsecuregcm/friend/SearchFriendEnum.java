@@ -11,7 +11,7 @@ public enum SearchFriendEnum {
     public final String msg;
 
 
-     SearchFriendEnum(Integer status,String msg){
+    SearchFriendEnum(Integer status,String msg){
         this.status = status;
         this.msg = msg;
 
@@ -29,5 +29,4 @@ public enum SearchFriendEnum {
         }
         return null;
     }
-
 }
