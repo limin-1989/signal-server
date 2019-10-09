@@ -10,8 +10,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.whispersystems.textsecuregcm.auth.Anonymous;
-import org.whispersystems.textsecuregcm.auth.OptionalAccess;
 import org.whispersystems.textsecuregcm.entities.*;
 import org.whispersystems.textsecuregcm.friend.*;
 import org.whispersystems.textsecuregcm.limits.RateLimiters;
@@ -25,7 +23,6 @@ import org.whispersystems.textsecuregcm.util.Constants;
 import org.whispersystems.textsecuregcm.util.Util;
 import org.whispersystems.textsecuregcm.websocket.WebsocketAddress;
 
-import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -118,30 +115,60 @@ public class FriendController {
             logger.info("Invalid number: " + number);
             throw new WebApplicationException(Response.status(400).build());
         }
-         String selfNumber = account.getNumber();
-         Integer status = searchFriendByNumber(selfNumber, number);
+
+        long time = System.currentTimeMillis();
+        String selfNumber = account.getNumber();
+        Integer status = searchFriendByNumber(selfNumber, number);
         if (status == SearchFriendEnum.SUCCESS.status){
-            sendFriendrequest(selfNumber,number,reason);
+            sendFriendrequest(selfNumber,number,reason,time);
             // 发送好友请求推送
 //            pushFriendRequest(account, number, reason);
 
             try {
                 Account destinationAccount = accounts.get(number).get();
                 Device destinationDevice = destinationAccount.getDevice(1).get();
+
+                String srcNumber = account.getNumber();
+                if (Util.isEmpty(srcNumber)) {
+                    return Response.status(404).entity("error").build();
+                }
+
+                String srcName = account.getName();
+                if (Util.isEmpty(srcName)) {
+                    srcName = srcNumber;
+                }
+
+                String srcAvatar = account.getAvatar();
+                if (Util.isEmpty(srcAvatar)) {
+                    srcAvatar = "";
+                }
+
+                if (Util.isEmpty(reason)) {
+                    reason = "";
+                }
+
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("number", srcNumber);
+                jsonObject.put("name", srcName);
+                jsonObject.put("avatar", srcAvatar);
+                jsonObject.put("reason", reason);
+                jsonObject.put("status", 0);
+                jsonObject.put("time", time);
+
                 WebsocketAddress address = new WebsocketAddress(destinationAccount.getNumber(), destinationAccount.getDevice(1).get().getId());
 
                 MessageProtos.Envelope.Builder messageBuilder = MessageProtos.Envelope.newBuilder();
 
                 messageBuilder.setType(MessageProtos.Envelope.Type.FRIEND_REQUEST)
-                        .setTimestamp(System.currentTimeMillis())
-                        .setServerTimestamp(System.currentTimeMillis());
+                              .setTimestamp(System.currentTimeMillis())
+                              .setServerTimestamp(System.currentTimeMillis());
 
                 messageBuilder.setSource(account.getNumber())
                         .setSourceDevice((int)account.getAuthenticatedDevice().get().getId());
 
 //                messageBuilder.setLegacyMessage(ByteString.copyFrom("test".getBytes()));
 
-                messageBuilder.setContent(ByteString.copyFrom("haoyoushenqing".getBytes()));
+                messageBuilder.setContent(ByteString.copyFrom(jsonObject.toString().getBytes()));
 
                 pushSender.sendMessage(destinationAccount, destinationDevice, messageBuilder.build(), true);
 
@@ -154,123 +181,108 @@ public class FriendController {
         return Response.status(status).entity(SearchFriendEnum.getMsgByKey(status)).build();
     }
 
-    @GET
-    @Path("/test")
-    public Response test(){
-        int status = searchFriendByNumber("+8613437268396", "+8613288888888");
-        return Response.status(status).build();
-
-    }
-
-    @Timed
-    @Path("/{destination}")
-    @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public SendMessageResponse sendMessage(@Auth                                     Optional<Account>   source,
-                                           @HeaderParam(OptionalAccess.UNIDENTIFIED) Optional<Anonymous> accessKey,
-                                           @PathParam("destination")                 String              destinationName,
-                                           @Valid IncomingMessageList messages)
-            throws RateLimitExceededException
-    {
-        if (!source.isPresent() && !accessKey.isPresent()) {
-            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-        }
-
-        if (source.isPresent() && !source.get().getNumber().equals(destinationName)) {
-            rateLimiters.getMessagesLimiter().validate(source.get().getNumber() + "__" + destinationName);
-        }
-
-        if (source.isPresent() && !source.get().getNumber().equals(destinationName)) {
-            identifiedMeter.mark();
-        } else {
-            unidentifiedMeter.mark();
-        }
-
-        try {
-            boolean isSyncMessage = source.isPresent() && source.get().getNumber().equals(destinationName);
-
-            Optional<Account> destination;
-
-            if (!isSyncMessage) destination = accountsManager.get(destinationName);
-            else                destination = source;
-
-            OptionalAccess.verify(source, accessKey, destination);
-            assert(destination.isPresent());
-
-            messageController.validateCompleteDeviceList(destination.get(), messages.getMessages(), isSyncMessage);
-            messageController.validateRegistrationIds(destination.get(), messages.getMessages());
-
-            System.out.println("messages size is "+messages.getMessages().size()+" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            for (IncomingMessage incomingMessage : messages.getMessages()) {
-                Optional<Device> destinationDevice = destination.get().getDevice(incomingMessage.getDestinationDeviceId());
-
-                if (destinationDevice.isPresent()) {
-                    System.out.println("message timestamp is "+messages.getTimestamp()+", online is "+messages.isOnline());
-                    messageController.sendMessage(source, destination.get(), destinationDevice.get(), messages.getTimestamp(), messages.isOnline(), incomingMessage);
-
-
-                    sendFriendrequest(source.get().getNumber(),destinationName,incomingMessage.getContent());
-                }
-            }
-
-            return new SendMessageResponse(!isSyncMessage && source.isPresent() && source.get().getActiveDeviceCount() > 1);
-        } catch (NoSuchUserException e) {
-            throw new WebApplicationException(Response.status(404).build());
-        } catch (MismatchedDevicesException e) {
-            throw new WebApplicationException(Response.status(409)
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .entity(new MismatchedDevices(e.getMissingDevices(),
-                            e.getExtraDevices()))
-                    .build());
-        } catch (StaleDevicesException e) {
-            throw new WebApplicationException(Response.status(410)
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(new StaleDevices(e.getStaleDevices()))
-                    .build());
-        }
-    }
-
     @Timed
     @DELETE
     @Path("/refuse/{destination}")
-    public void refuse(@Auth Account account,@PathParam("destination")  String  destinationName){
-        if (Util.isEmpty(account.getNumber()) || Util.isEmpty(destinationName)) {
-            throw new NullPointerException();
+    public Response refuse(@Auth Account account,@PathParam("destination")  String  destinationName){
+        if (Util.isEmpty(account.getNumber())) {
+            return Response.status(1).entity("account number is empty").build();
+        }
+
+        if (Util.isEmpty(destinationName)) {
+            return Response.status(2).entity("destination number is empty").build();
         }
 
         friendRequests.deleteRequest(destinationName,account.getNumber());
+
+        return Response.ok().entity("success").build();
     }
 
     @Timed
     @PUT
     @Path("/agree/{destination}")
-    public void agree(@Auth Account account,@PathParam("destination")  String  destinationName){
-        if (Util.isEmpty(account.getNumber())|| Util.isEmpty(destinationName)) {
-             throw new NullPointerException();
+    public Response agree(@Auth Account account, @PathParam("destination") String destinationName){
+        if (Util.isEmpty(account.getNumber())) {
+            return Response.status(1).entity("account number is empty").build();
         }
-        friendRequests.queryFriend(account.getNumber(),destinationName);
-        friendRequests.queryFriend(destinationName,account.getNumber());
-        friendRequests.deleteRequest( destinationName,account.getNumber());
+
+        if (Util.isEmpty(destinationName)) {
+            return Response.status(2).entity("destination number is empty").build();
+        }
+
+        Optional<FriendRequest> friendRequest = friendRequests.find(destinationName, account.getNumber());
+
+        Optional<Friend> friendDes = friendRequests.findFriendRelationshipByNumber(account.getNumber(), destinationName);
+        if (friendDes.isPresent()) {
+            if (friendRequest.isPresent()) {
+                friendRequests.deleteRequest(destinationName, account.getNumber());
+            }
+
+            return Response.status(3).entity("we are already friends, do not add again").build();
+        }
+
+        friendRequests.addFriend(account.getNumber(), destinationName);
+
+        Optional<Friend> friendSrc = friendRequests.findFriendRelationshipByNumber(destinationName, account.getNumber());
+        if (!friendSrc.isPresent()) {
+            friendRequests.addFriend(destinationName, account.getNumber());
+        }
+
+        if (friendRequest.isPresent()) {
+            friendRequests.deleteRequest(destinationName, account.getNumber());
+        }
+
+        return Response.ok().entity("success").build();
     }
 
-
+    /**
+     * 获取好友列表
+     * @param account
+     * @return
+     */
     @Timed
     @GET
     @Path("/allFriend")
-    public List<String> allFriend(@Auth Account account){
-
+    public Response allFriend(@Auth Account account){
+        JSONArray result = new JSONArray();
         String number = account.getNumber();
-        List<String> friends = new ArrayList<>();
+        List<String> friendNumbers;
+        Optional<Account> friendAccount;
         if (!number.isEmpty()){
-//            friends=friendRequests.findFriendByUserNumber(number);
-
-            for (int i = 0; i < friends.size(); i++) {
-
+            friendNumbers = friendRequests.findFriendByUserNumber(number);
+            if (friendNumbers != null && friendNumbers.size() > 0) {
+                for (int i = 0; i < friendNumbers.size(); i++) {
+                    friendAccount = accounts.get(friendNumbers.get(i));
+                    if (friendAccount.isPresent()) {
+                        JSONObject json = new JSONObject();
+                        json.put("number", friendAccount.get().getNumber());
+                        json.put("name", friendAccount.get().getProfileName());
+                        json.put("avatar", friendAccount.get().getAvatar());
+                        result.put(json);
+                    }
+                }
+                return Response.ok().entity(result.toString()).build();
             }
+            return Response.status(2).entity("no friend").build();
+        }
+        return Response.status(1).entity("account number is empty").build();
+    }
+
+    @Timed
+    @DELETE
+    @Path("/delete/{number}")
+    public Response deleteFriend(@Auth Account account, @PathParam("number") String number){
+        if (Util.isEmpty(account.getNumber())) {
+            return Response.status(1).entity("account number is empty").build();
         }
 
-        return friends;
+        if (Util.isEmpty(number)) {
+            return Response.status(2).entity("destination number is empty").build();
+        }
+
+        friendRequests.deleteFriend(account.getNumber(), number);
+
+        return Response.ok().build();
     }
 
     /**
@@ -315,7 +327,7 @@ public class FriendController {
         }
 
         //此用户已经是自己的好友
-        Optional<Friend> relationship = friendRequests.friendFriendRelationshipByNumber(selfNumber, number);
+        Optional<Friend> relationship = friendRequests.findFriendRelationshipByNumber(selfNumber, number);
         if (relationship.isPresent()){
             return SearchFriendEnum.ALREADY_FRIENDS.status;
         }
@@ -329,16 +341,16 @@ public class FriendController {
      * @param selfNumber 发送申请好友方号码
      * @param number 接受好友申请方号码
      */
-    public void  sendFriendrequest(String selfNumber,String number,String reason){
+    public void  sendFriendrequest(String selfNumber,String number,String reason,long time){
 
         //在好友请求表中查找记录
         Optional<FriendRequest> friendRequest = friendRequests.find(selfNumber, number);
         if (!friendRequest.isPresent()){
-            friendRequests.store(selfNumber, number,reason);
+            friendRequests.store(selfNumber, number,reason,time);
 
         }else {
             friendRequests.deleteRequest(selfNumber, number);
-            friendRequests.store(selfNumber, number, reason);
+            friendRequests.store(selfNumber, number, reason,time);
         }
     }
 

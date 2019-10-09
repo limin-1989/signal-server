@@ -19,12 +19,20 @@ public class Friend {
     @JsonProperty
     private String friend_number;
 
+    @JsonProperty
+    private String remark;
+
+    @JsonProperty
+    private int status;
+
     public Friend(){}
 
-    public Friend(long id, String user_number, String friend_number) {
+    public Friend(long id, String user_number, String friend_number, String remark, int status) {
         this.id = id;
         this.user_number = user_number;
         this.friend_number = friend_number;
+        this.remark = remark;
+        this.status = status;
     }
 
     public long getId() {
@@ -49,5 +57,21 @@ public class Friend {
 
     public void setFriend_number(String friend_number) {
         this.friend_number = friend_number;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

@@ -68,7 +68,7 @@ public class FriendRequests {
      * @param selfNumber
      * @param number
      */
-    public void store(String selfNumber, String number,String reason){
+    public void store(String selfNumber, String number,String reason,long time){
         database.use(jdbi -> jdbi.useHandle(handle -> {
             try (Timer.Context ignored = storeTimer.time()) {
                 handle.createUpdate("INSERT INTO friend_request("+USER_NUMBER+","+FRIEND_NUMBER+","+REASON+","+REQUEST_TIME+") " +
@@ -76,7 +76,7 @@ public class FriendRequests {
                         .bind("user_number", selfNumber)
                         .bind("friend_number",number )
                         .bind("reason",reason)
-                        .bind("request_time",new Date())
+                        .bind("request_time",new Date(time))
                         .execute();
             }
         }));
@@ -117,7 +117,7 @@ public class FriendRequests {
      * @param number
      * @return
      */
-    public Optional<Friend> friendFriendRelationshipByNumber(String selfNumber, String number){
+    public Optional<Friend> findFriendRelationshipByNumber(String selfNumber, String number){
         return database.with(jdbi -> jdbi.withHandle(handle -> {
             try(Timer.Context ignored =FindFriendTimer.time() ) {
                 return handle.createQuery("SELECT * FROM friends WHERE "+USER_NUMBER+" = :user_number AND "+FRIEND_NUMBER+" = :friend_number")
@@ -135,10 +135,10 @@ public class FriendRequests {
      * @param selfNumber
      * @param number
      */
-   public void queryFriend(String selfNumber,String number){
+   public void addFriend(String selfNumber, String number){
        database.use(jdbi -> jdbi.useHandle(handle -> {
            try (Timer.Context ignored = storeTimer.time()) {
-               handle.createUpdate("INSERT INTO friends("+USER_NUMBER+","+FRIEND_NUMBER+")" +
+               handle.createUpdate("INSERT INTO friends ("+USER_NUMBER+","+FRIEND_NUMBER+") " +
                        "VALUES (:user_number,:friend_number)")
                        .bind("user_number", selfNumber)
                        .bind("friend_number",number )
@@ -153,18 +153,27 @@ public class FriendRequests {
      * @param number
      * @return
      */
-    public List<Friend> findFriendByUserNumber(String number){
+    public List<String> findFriendByUserNumber(String number){
         return database.with(jdbi -> jdbi.withHandle(handle -> {
             try (Timer.Context ignored = QueryAllRequestTimer.time()){
-                return handle.createQuery("SELECT * FROM friends WHERE "+USER_NUMBER + "= :user_number")
+                return handle.createQuery("SELECT friend_number FROM friends WHERE "+USER_NUMBER + " = :user_number")
                         .bind("user_number",number)
-                        .mapTo(Friend.class)
+                        .mapTo(String.class)
                         .list();
             }
         }));
     }
 
-
+    public void deleteFriend(String selfNumber, String number){
+        database.use(jdbi ->jdbi.useHandle(handle -> {
+            try (Timer.Context ignored = deleteRequestTimer.time()) {
+                handle.createUpdate("DELETE FROM friends WHERE "+USER_NUMBER+" =:user_number AND "+FRIEND_NUMBER+" =:friend_number")
+                        .bind("user_number",selfNumber)
+                        .bind("friend_number",number)
+                        .execute();
+            }
+        }));
+    }
 
 
 }

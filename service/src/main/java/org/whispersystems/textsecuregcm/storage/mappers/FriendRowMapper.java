@@ -17,6 +17,6 @@ public class FriendRowMapper implements RowMapper<Friend> {
 
     @Override
     public Friend map(ResultSet rs, StatementContext ctx) throws SQLException {
-        return new Friend(rs.getLong(FriendRequests.ID),rs.getString(FriendRequests.USER_NUMBER),rs.getString(FriendRequests.FRIEND_NUMBER));
+        return new Friend(rs.getLong(FriendRequests.ID),rs.getString(FriendRequests.USER_NUMBER),rs.getString(FriendRequests.FRIEND_NUMBER),rs.getString("remark"),rs.getInt("status"));
     }
 }
